@@ -37,6 +37,7 @@ export const DEFAULTS = Object.freeze({
   sidebarWidth: 248,
   listWidth: 372,
   sidebarVisible: true,
+  listVisible: true,
   keyboardRef: false,        // the on-screen keyboard legend
 
   /* reading */

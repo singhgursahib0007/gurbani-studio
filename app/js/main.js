@@ -19,8 +19,15 @@ applyVars();
 
 const app = document.getElementById("app");
 
-const reader = readerPane({ onSaveChanged: () => list.refresh() });
-const list = listPane({ onOpen: (what) => reader.open(what) });
+const reader = readerPane({
+  onSaveChanged: () => list.refresh(),
+  onToggleList: () => toggleList(),
+  onImmersive: () => toggleImmersive(),
+});
+const list = listPane({
+  onOpen: (what) => reader.open(what),
+  onToggleSidebar: () => toggleSidebar(),
+});
 const side = sidebar({
   onSelect: (key) => {
     if (key === "search") list.setMode("search");
@@ -36,6 +43,7 @@ const d2 = el("div.divider.d2", { role: "separator", "aria-label": "Resize list"
 app.append(side.root, d1, list.root, d2, reader.root);
 
 if (!store.get("sidebarVisible")) app.classList.add("no-sidebar");
+if (store.get("listVisible") === false) app.classList.add("no-list");
 
 /* --- dragging the dividers ------------------------------------------------ */
 function draggable(divider, key, min, max) {
@@ -68,16 +76,73 @@ function draggable(divider, key, min, max) {
 draggable(d1, "sidebarWidth", 190, 380);
 draggable(d2, "listWidth", 280, 560);
 
-/* --- shortcuts ------------------------------------------------------------ */
+/* --- collapsing panes ------------------------------------------------------ */
 function toggleSidebar() {
   const showing = !app.classList.toggle("no-sidebar");
   store.set("sidebarVisible", showing);
+}
+
+function toggleList() {
+  const showing = !app.classList.toggle("no-list");
+  store.set("listVisible", showing);
 }
 
 function toggleFocus() {
   const on = app.classList.toggle("focus-mode");
   toast(on ? `Focus mode · ${MOD}\\ to leave` : "Focus mode off", { ms: 1600 });
 }
+
+/* --- immersive reading ------------------------------------------------------
+ *
+ * Both things at once: the panes collapse away, and the browser goes properly
+ * full screen so nothing of the window is left. Leaving by either route -
+ * Escape, or the browser's own full-screen exit - has to put the app back, so
+ * the fullscreenchange event is the single source of truth rather than our own
+ * click handler.
+ */
+let pointerTimer = null;
+
+async function enterImmersive() {
+  if (!reader.isOpen()) { toast("Open a bani or shabad first", { ms: 1800 }); return; }
+  app.classList.add("immersive");
+  reader.setImmersiveTitle(reader.title());
+  try { await document.documentElement.requestFullscreen?.(); } catch { /* denied is fine */ }
+  wakePointer();
+  toast("Esc to leave", { ms: 2000 });
+}
+
+function exitImmersive() {
+  app.classList.remove("immersive", "pointer-live");
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+}
+
+const isImmersive = () => app.classList.contains("immersive");
+
+function toggleImmersive() { isImmersive() ? exitImmersive() : enterImmersive(); }
+
+/* Show the controls while the pointer is doing something, hide them when it
+   settles - the reason to be in this mode is to not look at controls. */
+function wakePointer() {
+  if (!isImmersive()) return;
+  app.classList.add("pointer-live");
+  clearTimeout(pointerTimer);
+  pointerTimer = setTimeout(() => app.classList.remove("pointer-live"), 2200);
+}
+document.addEventListener("mousemove", wakePointer);
+
+/* If the user leaves full screen by the browser's own means, come back too. */
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && isImmersive()) {
+    app.classList.remove("immersive", "pointer-live");
+  }
+});
+
+reader.controls.append(
+  iconBtn("play", `Auto-scroll  ${MOD}J`, () => reader.toggleAuto()),
+  iconBtn("bookmark", `Save  ${MOD}S`, () => reader.toggleSaveWhole()),
+  iconBtn("palette", "Appearance", (e) => openAppearance(e.currentTarget)),
+  iconBtn("arrowsIn", "Leave immersive  ·  Esc", exitImmersive),
+);
 
 document.addEventListener("keydown", (e) => {
   const mod = e.metaKey || e.ctrlKey;
@@ -87,6 +152,10 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault(); side.setCurrent("search"); list.setMode("search"); return;
   }
   if (mod && e.key.toLowerCase() === "b") { e.preventDefault(); toggleSidebar(); return; }
+  if (mod && e.key.toLowerCase() === "l") { e.preventDefault(); toggleList(); return; }
+  if (mod && e.shiftKey && e.key.toLowerCase() === "f") {
+    e.preventDefault(); toggleImmersive(); return;
+  }
   if (mod && e.key === "\\") { e.preventDefault(); toggleFocus(); return; }
   if (mod && e.key.toLowerCase() === "p") { e.preventDefault(); palette(); return; }
   if (mod && e.key === ",") { e.preventDefault(); openSettings(document.querySelector(".side-foot .ib:last-child")); return; }
@@ -101,7 +170,11 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "ArrowUp") { e.preventDefault(); list.moveSelection(-1); }
   else if (e.key === "Enter") { e.preventDefault(); list.openSelected(); }
   else if (e.key === " ") { e.preventDefault(); reader.scrollBy(innerHeight * 0.8); }
-  else if (e.key === "Escape" && app.classList.contains("focus-mode")) toggleFocus();
+  else if (e.key === "f") { e.preventDefault(); toggleImmersive(); }
+  else if (e.key === "Escape") {
+    if (isImmersive()) exitImmersive();
+    else if (app.classList.contains("focus-mode")) toggleFocus();
+  }
 });
 
 /* --- command palette ------------------------------------------------------ */
@@ -114,6 +187,8 @@ function palette() {
     { t: "Appearance", s: "", run: () => openAppearance(document.querySelector(".side-foot .ib")) },
     { t: "Settings", s: `${MOD},`, run: () => openSettings(document.querySelector(".side-foot .ib:last-child")) },
     { t: "Toggle sidebar", s: `${MOD}B`, run: toggleSidebar },
+    { t: "Toggle list", s: `${MOD}L`, run: toggleList },
+    { t: "Immersive reading", s: "F", run: toggleImmersive },
     { t: "Focus mode", s: `${MOD}\\`, run: toggleFocus },
     { t: "Auto-scroll", s: `${MOD}J`, run: () => reader.toggleAuto() },
     { t: "Save what I am reading", s: `${MOD}S`, run: () => reader.toggleSaveWhole() },

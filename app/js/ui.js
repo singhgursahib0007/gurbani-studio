@@ -75,12 +75,27 @@ export function popover(anchor, build, { align = "end" } = {}) {
   build(pop, { close });
   document.body.append(scrim, pop);
 
+  /* Place it in whichever gap is bigger, and cap its height to that gap so
+     the panel always fits on screen and scrolls inside itself. Placing first
+     and hoping the content fits leaves the top of a long panel above the
+     viewport, where it cannot be scrolled back to. */
   const r = anchor.getBoundingClientRect();
-  const w = pop.offsetWidth, h = pop.offsetHeight;
+  const gap = 8;
+  const below = innerHeight - r.bottom - gap * 2;
+  const above = r.top - gap * 2;
+  const placeBelow = below >= 260 || below >= above;
+  const room = Math.max(180, placeBelow ? below : above);
+
+  pop.style.maxHeight = `${room}px`;
+  const w = pop.offsetWidth;
+  const h = Math.min(pop.offsetHeight, room);
+
   let left = align === "end" ? r.right - w : r.left;
-  left = Math.max(8, Math.min(left, innerWidth - w - 8));
-  let top = r.bottom + 6;
-  if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 6);
+  left = Math.max(gap, Math.min(left, innerWidth - w - gap));
+  const top = placeBelow
+    ? Math.min(r.bottom + 6, innerHeight - h - gap)
+    : Math.max(gap, r.top - h - 6);
+
   pop.style.left = `${left}px`;
   pop.style.top = `${top}px`;
   requestAnimationFrame(() => pop.classList.add("open"));
@@ -92,12 +107,19 @@ export function popover(anchor, build, { align = "end" } = {}) {
     pop.classList.remove("open");
     setTimeout(() => { pop.remove(); scrim.remove(); }, 140);
     document.removeEventListener("keydown", onKey, true);
-    window.removeEventListener("scroll", close, true);
+    window.removeEventListener("scroll", onScroll, true);
   }
   function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); close(); } }
+
+  /* Close when the page scrolls out from under the anchor - but NOT when the
+     panel scrolls itself. The listener is in the capture phase so it sees
+     scrolls from any element, including this one, and closing on those made
+     a tall panel impossible to scroll at all. */
+  function onScroll(e) { if (!pop.contains(e.target)) close(); }
+
   scrim.addEventListener("mousedown", close);
   document.addEventListener("keydown", onKey, true);
-  window.addEventListener("scroll", close, true);
+  window.addEventListener("scroll", onScroll, true);
   return { close, pop };
 }
 

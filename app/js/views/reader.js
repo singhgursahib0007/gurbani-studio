@@ -26,24 +26,34 @@ const baniEnglish = (info) => {
   return (BANI_INFO[id] && BANI_INFO[id].name) || info.english || "Bani";
 };
 
-export function readerPane({ onSaveChanged }) {
+export function readerPane({ onSaveChanged, onToggleList, onImmersive }) {
   const root = el("div.pane.reader-pane");
 
   const where = el("div.reader-where", { text: "" });
   const saveBtn = iconBtn("bookmark", "Save this shabad", () => toggleSaveWhole());
   const autoBtn = iconBtn("play", "Auto-scroll", () => toggleAuto());
+  const listBtn = iconBtn("list", "Show or hide the list", () => onToggleList?.());
+  const immBtn = iconBtn("arrowsOut", "Immersive reading  ·  F", () => onImmersive?.());
   const bar = el("div.reader-bar", {}, [
+    listBtn,
     where,
     el("div.spacer"),
     autoBtn,
     saveBtn,
+    immBtn,
   ]);
 
   const progress = el("div.reader-progress");
   const scroller = el("div.reader-scroll");
   const doc = el("div.reader-doc");
   scroller.append(doc);
-  root.append(bar, progress, scroller);
+
+  /* Immersive furniture: a title that names what you are reading and a small
+     control cluster, both of which appear on movement and fade when the
+     pointer settles. */
+  const immTitle = el("div.immersive-title", { text: "" });
+  const immControls = el("div.immersive-controls");
+  root.append(bar, progress, immTitle, scroller, immControls);
 
   let type = null, id = null, focusLine = null;
   let record = null, revealed = false, restored = false;
@@ -69,6 +79,7 @@ export function readerPane({ onSaveChanged }) {
       : normaliseShabad(await getShabad(id));
 
     where.textContent = record.title;
+    immTitle.textContent = record.title;
     store.set("lastRead", { type, id, title: record.title, at: Date.now() });
     render();
     updateSaveBtn();
@@ -320,6 +331,9 @@ export function readerPane({ onSaveChanged }) {
 
   return {
     root, open, showIdle,
+    controls: immControls,
+    setImmersiveTitle: (t) => { immTitle.textContent = t; },
+    title: () => record?.title || "",
     isOpen: () => record != null,
     toggleAuto, toggleSaveWhole,
     scrollBy: (dy) => { scroller.scrollTop += dy; },

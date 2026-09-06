@@ -74,6 +74,26 @@ scrolls and any handler watching a pane's scroll never fires. The shell uses a
 fixed `100dvh` grid with `overflow: hidden`, and every scrolling child carries
 `min-height: 0` so a flex item will actually shrink far enough to scroll.
 
+### A popover that closed on its own scroll
+
+The panel closed on any scroll event, registered in the capture phase so it
+would notice the page moving out from under its anchor. But capture sees
+scrolls from *every* element, including the panel itself — so scrolling the
+settings panel closed it, and a panel taller than the screen could not be read
+at all. It now ignores scrolls originating inside itself.
+
+The placement was wrong too: it was positioned first and capped at a fixed
+74vh, which could leave the top of a long panel above the viewport with no way
+to scroll back. It now measures the space above and below its anchor, picks
+the larger, and caps its height to that.
+
+### An absolutely positioned child needs a positioned parent
+
+The reading-progress bar is `position: absolute` inside the reader pane, but
+the pane had no `position`, so it resolved against the viewport and stretched
+the full width of the window — across both sidebars, reporting on a pane it
+was not in.
+
 ### The bani id key depends on where the record came from
 
 The local API returns the database column `bani_id`; BaniDB's own payload calls

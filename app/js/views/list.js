@@ -20,7 +20,7 @@ const SORTS = [
   { id: "gurmukhi", label: "ਅ – ੜ",      sub: "By Gurmukhi name" },
 ];
 
-export function listPane({ onOpen }) {
+export function listPane({ onOpen, onToggleSidebar }) {
   const root = el("div.pane.list-pane");
 
   let mode = "banis";           // banis | search | saved
@@ -53,9 +53,12 @@ export function listPane({ onOpen }) {
     el("span.kbd", { text: `${MOD}K` }),
   ]);
 
+  const sideBtn = iconBtn("sidebar", `Show or hide the sidebar  ${MOD}B`,
+                          () => onToggleSidebar?.());
+
   const head = el("div.list-head", {}, [
-    el("div", { style: { display: "flex", alignItems: "center", gap: "8px" } },
-       [title, el("div", { style: { flex: "1" } }), sortBtn, kbBtn]),
+    el("div", { style: { display: "flex", alignItems: "center", gap: "6px" } },
+       [sideBtn, title, el("div", { style: { flex: "1" } }), sortBtn, kbBtn]),
     field, echo, meta,
   ]);
 

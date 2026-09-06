@@ -116,20 +116,48 @@ export function openSettings(anchor) {
     ])));
 
     pop.append(el("div.pop-sep"), el("div.pop-title", { text: "Reset" }));
-    pop.append(
-      popItem("Reset appearance", {
-        sub: "Keeps your banis and saved lines", icon: "reset",
-        onSelect: () => { store.resetAppearance(); close(); toast("Appearance reset"); },
-      }),
-      popItem("Reset everything", {
-        sub: "Also clears saved and starred", icon: "xmark",
-        onSelect: () => {
-          if (confirm("Clear all preferences, starred banis and saved lines?")) {
-            store.resetEverything(); close(); toast("Everything reset");
-          }
-        },
-      }),
-    );
+    pop.append(popItem("Reset appearance", {
+      sub: "Theme, fonts and sizes. Keeps your banis and saved lines.",
+      icon: "reset",
+      onSelect: () => { store.resetAppearance(); close(); toast("Appearance reset"); },
+    }));
+
+    /* Two taps rather than a browser dialog: the first turns the row into the
+       warning, the second does it. Destructive and irreversible, so it should
+       not be one stray click away - but a native confirm() is an ugly way to
+       say so. */
+    const wipe = el("button.pop-item", {});
+    let armed = false;
+    const paint = () => {
+      wipe.replaceChildren(
+        el("span", { html: armed ? Icons.xmark : Icons.reset,
+                     style: { display: "flex", color: armed ? "#D9483B" : "" } }),
+        el("div", { style: { flex: "1", minWidth: "0" } }, [
+          el("div", { text: armed ? "Tap again to erase everything" : "Erase all saved data",
+                      style: { color: armed ? "#D9483B" : "", fontWeight: armed ? "600" : "" } }),
+          el("div.sub", {
+            text: armed
+              ? "This cannot be undone"
+              : "Preferences, starred banis, saved lines, reading positions",
+          }),
+        ]),
+      );
+    };
+    paint();
+    wipe.onclick = () => {
+      if (!armed) {
+        armed = true; paint();
+        setTimeout(() => { if (armed) { armed = false; paint(); } }, 4000);
+        return;
+      }
+      store.resetEverything();
+      // resetEverything writes the defaults back; clear the key outright so
+      // nothing of the old state survives in storage either.
+      try { localStorage.removeItem("gurbani.studio.v1"); } catch { /* blocked */ }
+      close();
+      toast("Everything erased");
+    };
+    pop.append(wipe);
 
     pop.append(el("div.pop-sep"));
     pop.append(el("div", {

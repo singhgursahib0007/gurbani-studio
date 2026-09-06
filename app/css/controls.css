@@ -95,7 +95,8 @@
 .pop-scrim { position: fixed; inset: 0; z-index: 60; }
 .pop {
   position: fixed; z-index: 61;
-  min-width: 260px; max-width: 340px; max-height: 74vh; overflow-y: auto;
+  min-width: 260px; max-width: 340px; overflow-y: auto;
+  /* max-height is set by ui.js from the space actually available. */
   padding: var(--s-2);
   background: var(--bg-elevated);
   border: 1px solid var(--separator);

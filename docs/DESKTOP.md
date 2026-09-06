@@ -41,6 +41,8 @@ would just be the phone app in a bigger window.
 | `⏎` | Open the selection |
 | `Space` | Page down in the reader |
 | `⌘B` | Show or hide the sidebar |
+| `⌘L` | Show or hide the list |
+| `F` or `⌘⇧F` | Immersive reading |
 | `⌘\` | Focus mode — both left panes away |
 | `⌘J` | Start or stop auto-scroll |
 | `⌘S` | Save what you are reading |
@@ -56,6 +58,25 @@ key shows the Gurmukhi shape with the Latin letter to press in its corner.
 
 Searching starts at **two** letters rather than three; a physical keyboard
 gets there faster than a thumb.
+
+## Immersive reading
+
+`F` collapses every pane *and* takes the browser full screen, so nothing of
+the window is left. The column gets more air — 22vh above the first line, 55vh
+below the last — and the only control is a small cluster at the corner that
+surfaces when the mouse moves and fades two seconds after it stops.
+
+Leaving works either way round: `Esc`, the control, or the browser's own
+full-screen exit. The `fullscreenchange` event is the single source of truth,
+so the app can never be left collapsed with no way back.
+
+## Collapsing panes
+
+Both left panes collapse independently — `⌘B` for the sidebar, `⌘L` for the
+list — and the grid animates rather than snapping, because every track is a
+length and `grid-template-columns` interpolates. Contents fade as the pane
+narrows, so nothing is squashed against the edge on the way out. The state
+persists.
 
 ## The reading column
 
