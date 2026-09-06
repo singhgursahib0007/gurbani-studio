@@ -10,17 +10,10 @@ tracking, no third-party JavaScript.
 
 <br>
 
-```
-┌──────────┬───────────────┬────────────────────────┐
-│ Sidebar  │  List         │  Reader                │
-│ Search   │  results /    │   ੴ ਸਤਿ ਨਾਮੁ …          │
-│ Saved    │  banis /      │                        │
-│ Nitnem   │  saved        │   measured column,     │
-│ Popular  │               │   centred in the pane  │
-│ Vaars    │  ↑↓ to move   │                        │
-│ Raags    │  ⏎ to open    │                        │
-└──────────┴───────────────┴────────────────────────┘
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/studio-dark.png">
+  <img alt="Gurbani Studio: a sidebar of categories, a list of the 104 banis, and Japji Sahib open in the reading pane" src="docs/assets/studio-light.png">
+</picture>
 
 ## Running it
 
