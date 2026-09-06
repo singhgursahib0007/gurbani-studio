@@ -63,6 +63,9 @@ which leaves the middle pane free to be nothing but a list.
 
 ## Documentation
 
+Seven documents, cross-linked. There is an
+**[index](docs/README.md)** that says which to read for what.
+
 | | |
 |---|---|
 | **[Architecture](docs/ARCHITECTURE.md)** | how the pieces fit, and why the seams are where they are |
@@ -72,6 +75,10 @@ which leaves the middle pane free to be nothing but a list.
 | **[The script layer](docs/GURMUKHI.md)** | first-letter search, two encodings, and the fonts |
 | **[Publishing](docs/DEPLOY.md)** | the static build, offline, where the corpus lives |
 | **[Decisions and defects](docs/DECISIONS.md)** | the non-obvious calls, and the bugs found by measuring |
+
+New here? **[ARCHITECTURE](docs/ARCHITECTURE.md)** first, then
+**[DESKTOP](docs/DESKTOP.md)** if you are changing the interface or
+**[DATASET](docs/DATASET.md)** if you are changing the data.
 
 ## Where the data comes from
 

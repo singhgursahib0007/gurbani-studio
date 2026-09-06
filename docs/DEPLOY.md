@@ -3,6 +3,10 @@
 The app is static files. `harness serve` is for development; anything that
 serves a folder can host the published build.
 
+Related: [ARCHITECTURE](ARCHITECTURE.md) for what `static` is built from ·
+[HARNESS](HARNESS.md) for the commands · [DATASET](DATASET.md) for what the
+translation choices mean.
+
 ```bash
 python3 -m harness static          # writes site/
 ```
@@ -35,7 +39,7 @@ bani catalogue is instant on a cold visit.
 ## Choosing what to publish
 
 The database keeps all eleven translation streams; the published build carries
-three. Two of the eleven are near-duplicates — `pu.bdb` matches `pu.ss` on
+three. Two of the eleven are [near-duplicates](DATASET.md#translations-one-row-per-line-per-translator) — `pu.bdb` matches `pu.ss` on
 99.2% of lines, `en.ssk` matches `en.bdb` on 92.7%.
 
 ```bash

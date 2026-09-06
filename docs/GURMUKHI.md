@@ -4,6 +4,11 @@ Everything about search rests on one question: given a line of Gurbani, which
 letters would someone type to find it? Getting that wrong is not a rounding
 error — it silently returns different lines.
 
+Related: [DATASET](DATASET.md) for the columns this produces ·
+[HARNESS](HARNESS.md) for where in the pipeline it runs ·
+[DESKTOP](DESKTOP.md) for how the keyboard exposes it ·
+[DECISIONS](DECISIONS.md) for the case-sensitivity bug.
+
 Implemented twice on purpose: `harness/gurmukhi.py` builds the index,
 `app/js/gurmukhi.js` interprets what the keyboard types. The two agree by
 construction, and `harness verify` proves it.
@@ -86,7 +91,7 @@ same reason. The count went from a wrong 81 to a correct 78.
 
 ## How the index is checked
 
-`harness verify` proves it three independent ways:
+[`harness verify`](HARNESS.md#commands) proves it three independent ways:
 
 1. **Reproducible** — recomputing from the stored Gurmukhi reproduces the
    stored column.

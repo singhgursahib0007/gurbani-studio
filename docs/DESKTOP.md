@@ -3,6 +3,11 @@
 Designed for a pointer, a keyboard and a large screen — not a phone layout
 given more room.
 
+Related: [ARCHITECTURE](ARCHITECTURE.md) for the system around it ·
+[GURMUKHI](GURMUKHI.md) for what the keyboard is actually typing ·
+[DECISIONS](DECISIONS.md) for the bugs behind several of these choices ·
+[DEPLOY](DEPLOY.md) for publishing it.
+
 ## Three panes
 
 ```
@@ -50,8 +55,8 @@ would just be the phone app in a bigger window.
 | `⌘,` | Settings |
 | `Esc` | Clear the field, or leave focus mode |
 
-**Gurmukhi is typed directly.** On a physical keyboard `jkrvmm` *is* the ASCII
-encoding the index is built from, so there is no on-screen keyboard in the way
+**Gurmukhi is typed directly.** On a physical keyboard `jkrvmm` *is* the
+[ASCII encoding the index is built from](GURMUKHI.md#two-encodings), so there is no on-screen keyboard in the way
 — you type Latin letters and the Gurmukhi appears beneath the field as you go.
 The on-screen keyboard is still there behind a button, as a **legend**: each
 key shows the Gurmukhi shape with the Latin letter to press in its corner.
@@ -96,7 +101,7 @@ discover.
 
 ## What carries over from the phone
 
-Same corpus, same search semantics, same preferences model. Reading position
+Same corpus, same search semantics, same preferences model. [Reading position](DECISIONS.md)
 is stored as a **line index rather than a pixel offset**, so it survives a
 change of type size, font, measure or translation. Themes, fonts, weights, the
 three independent text sizes, larivaar and translation toggles all behave

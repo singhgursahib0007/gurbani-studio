@@ -3,6 +3,10 @@
 The non-obvious calls, and the bugs that were found by measuring rather than
 by looking. Recorded because in every case the wrong version *looked* fine.
 
+Related: [GURMUKHI](GURMUKHI.md) and [DATASET](DATASET.md) for the material
+several of these concern · [DESKTOP](DESKTOP.md) for the interface ones ·
+[ARCHITECTURE](ARCHITECTURE.md) for the rules they produced.
+
 ## Corpus
 
 ### `/banis` numbers verses in a different id space from `/angs`
