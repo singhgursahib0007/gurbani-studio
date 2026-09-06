@@ -1,0 +1,234 @@
+/* ===========================================================================
+   Controls: search field, popovers, switches, sliders, the command palette,
+   the on-screen keyboard reference, toasts, context menu.
+   =========================================================================== */
+
+/* --- search field --------------------------------------------------------- */
+.field {
+  display: flex; align-items: center; gap: var(--s-2);
+  height: 30px; padding: 0 var(--s-2);
+  background: var(--bg-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
+}
+.field:focus-within { border-color: var(--accent); background: var(--bg-elevated); }
+.field-icon { display: flex; color: var(--label-3); }
+.field-icon svg { width: 15px; height: 15px; }
+.field input {
+  flex: 1; min-width: 0; background: none; border: 0; outline: none;
+  font-size: var(--t-body);
+}
+.field input::placeholder { color: var(--label-3); }
+.field input::-webkit-search-cancel-button { display: none; }
+.field .kbd { flex: none; }
+
+/* A key cap, for showing shortcuts inline. */
+.kbd {
+  font: 500 var(--t-micro)/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--label-3);
+  background: var(--fill);
+  border: 1px solid var(--separator);
+  border-radius: 4px;
+  padding: 3px 5px;
+}
+
+/* What the typed letters look like in Gurmukhi, shown live under the field. */
+.echo {
+  display: flex; align-items: center; gap: var(--s-2);
+  font-size: var(--t-tiny); color: var(--label-3);
+  min-height: 20px;
+}
+.echo .gur { font-size: 1.05rem; color: var(--gold); letter-spacing: .06em; }
+
+/* --- segmented ------------------------------------------------------------ */
+.segmented {
+  display: flex; gap: 2px; padding: 2px;
+  background: var(--bg-sunken); border-radius: var(--r-md);
+}
+.segmented button {
+  flex: 1; padding: 4px 10px; border-radius: calc(var(--r-md) - 3px);
+  font-size: var(--t-small); color: var(--label-2); white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.segmented button:hover { color: var(--label); }
+.segmented button[aria-pressed="true"] {
+  background: var(--bg-elevated); color: var(--label);
+  font-weight: 600; box-shadow: var(--shadow-1);
+}
+.segmented button svg { width: 15px; height: 15px; display: block; margin: 0 auto; }
+
+/* --- switch ---------------------------------------------------------------- */
+.switch {
+  width: 38px; height: 22px; flex: none; position: relative;
+  border-radius: var(--r-full); background: var(--fill-strong);
+  transition: background var(--dur-fast) var(--ease);
+}
+.switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: var(--r-full);
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(16px); }
+
+/* --- slider ---------------------------------------------------------------- */
+.slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 3px; border-radius: var(--r-full);
+  background: var(--fill-strong); outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 15px; height: 15px; border-radius: var(--r-full);
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.06);
+  cursor: grab;
+}
+.slider::-moz-range-thumb {
+  width: 15px; height: 15px; border: 0; border-radius: var(--r-full);
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+/* --- popover ---------------------------------------------------------------- */
+.pop-scrim { position: fixed; inset: 0; z-index: 60; }
+.pop {
+  position: fixed; z-index: 61;
+  min-width: 260px; max-width: 340px; max-height: 74vh; overflow-y: auto;
+  padding: var(--s-2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  opacity: 0; transform: translateY(-6px) scale(.985);
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.pop.open { opacity: 1; transform: none; }
+.pop-title {
+  font-size: var(--t-micro); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .055em; color: var(--label-3);
+  padding: var(--s-2) var(--s-2) var(--s-1);
+}
+.pop-item {
+  display: flex; align-items: center; gap: var(--s-2);
+  width: 100%; padding: 7px var(--s-2); border-radius: var(--r-sm);
+  text-align: left; font-size: var(--t-body);
+  transition: background var(--dur-fast) var(--ease);
+}
+.pop-item:hover { background: var(--hover); }
+.pop-item .tick { margin-left: auto; color: var(--accent); display: flex; }
+.pop-item .tick svg { width: 15px; height: 15px; }
+.pop-item .sub { font-size: var(--t-tiny); color: var(--label-3); }
+.pop-sep { height: 1px; background: var(--separator); margin: var(--s-2) 0; }
+.pop-field { padding: var(--s-2); }
+.pop-field .lab {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: var(--t-small); margin-bottom: 6px;
+}
+.pop-field .lab span:last-child { color: var(--label-3); font-size: var(--t-tiny); }
+
+/* --- theme swatches --------------------------------------------------------- */
+.swatches { display: flex; gap: 6px; padding: var(--s-2); }
+.swatch {
+  flex: 1; aspect-ratio: 1; border-radius: var(--r-md);
+  display: grid; place-items: center;
+  font-size: var(--t-tiny); font-weight: 600;
+  border: 2px solid transparent;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.swatch:hover { transform: translateY(-1px); }
+.swatch[aria-pressed="true"] { border-color: var(--accent); }
+
+/* --- command palette --------------------------------------------------------- */
+.palette-scrim {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(0,0,0,.28);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  opacity: 0; transition: opacity var(--dur) var(--ease);
+}
+.palette-scrim.open { opacity: 1; }
+.palette {
+  position: fixed; z-index: 71; top: 16vh; left: 50%;
+  width: min(92vw, 560px);
+  transform: translate(-50%, -8px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  opacity: 0; transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.palette.open { opacity: 1; transform: translate(-50%, 0); }
+.palette-input {
+  width: 100%; padding: var(--s-4) var(--s-5);
+  background: none; border: 0; outline: none;
+  font-size: var(--t-title);
+}
+.palette-list { max-height: 46vh; overflow-y: auto; border-top: 1px solid var(--separator); }
+.palette-item {
+  display: flex; align-items: center; gap: var(--s-3);
+  width: 100%; padding: var(--s-2) var(--s-5); text-align: left;
+}
+.palette-item[aria-selected="true"] { background: var(--selected); color: var(--selected-ink); }
+.palette-item .body { flex: 1; min-width: 0; }
+.palette-item .t { font-size: var(--t-body); }
+.palette-item .s { font-size: var(--t-tiny); color: var(--label-3); }
+.palette-item[aria-selected="true"] .s { color: var(--selected-ink); opacity: .7; }
+
+/* --- on-screen keyboard reference --------------------------------------------- */
+.kbref { padding: var(--s-2) var(--s-3) var(--s-3); border-top: 1px solid var(--separator); }
+.kbref-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.kbref .key {
+  height: 30px; border-radius: var(--r-sm);
+  background: var(--bg-elevated); border: 1px solid var(--separator);
+  display: grid; place-items: center; position: relative;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.kbref .key:hover { border-color: var(--accent); background: var(--hover); }
+.kbref .key .g {
+  font-family: var(--gur-font, "Sant Lipi"), sans-serif;
+  font-size: 1rem; color: var(--gurbani); font-weight: 500;
+}
+/* The Latin key you would actually press, which is the whole point on a
+   desktop: the keyboard is a legend, not an input device. */
+.kbref .key .a {
+  position: absolute; top: 1px; right: 3px;
+  font: 500 9px/1 ui-monospace, Menlo, monospace; color: var(--label-3);
+}
+
+/* --- toast ------------------------------------------------------------------- */
+.toast {
+  position: fixed; left: 50%; bottom: var(--s-6); z-index: 80;
+  transform: translate(-50%, 120%);
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator);
+  border-radius: var(--r-full);
+  box-shadow: var(--shadow-2);
+  font-size: var(--t-small);
+  opacity: 0;
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
+}
+.toast.in { transform: translate(-50%, 0); opacity: 1; }
+.toast button {
+  padding: 4px 10px; border-radius: var(--r-full);
+  background: var(--fill); color: var(--accent); font-weight: 600;
+  font-size: var(--t-tiny);
+}
+.toast button:hover { background: var(--fill-strong); }
+
+/* --- context menu -------------------------------------------------------------- */
+.menu {
+  position: fixed; z-index: 75; min-width: 190px; padding: var(--s-1);
+  background: var(--bg-elevated); border: 1px solid var(--separator);
+  border-radius: var(--r-md); box-shadow: var(--shadow-2);
+}
+.menu button {
+  display: flex; align-items: center; gap: var(--s-2);
+  width: 100%; padding: 6px var(--s-2); border-radius: var(--r-sm);
+  text-align: left; font-size: var(--t-small);
+}
+.menu button:hover { background: var(--selected); color: var(--selected-ink); }
+.menu svg { width: 15px; height: 15px; }

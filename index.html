@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gurbani Studio</title>
+<meta name="description" content="Read and search Gurbani on the desktop.">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/shell.css">
+<link rel="stylesheet" href="css/controls.css">
+<link rel="stylesheet" href="css/reader.css">
+<script>
+  /* Theme and pane geometry before first paint, so the window never flashes
+     white or snaps from default widths to the saved ones. */
+  try {
+    var p = JSON.parse(localStorage.getItem("gurbani.studio.v1") || "{}");
+    var t = p.theme && p.theme !== "auto" ? p.theme
+      : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", t);
+    var r = document.documentElement.style;
+    if (p.sidebarWidth) r.setProperty("--sidebar-w", p.sidebarWidth + "px");
+    if (p.listWidth) r.setProperty("--list-w", p.listWidth + "px");
+    if (p.measure) r.setProperty("--reader-measure", p.measure + "rem");
+    if (p.textScale) r.setProperty("--reader-scale", p.textScale);
+    if (p.gurFont) r.setProperty("--gur-font", '"' + p.gurFont + '"');
+    if (p.gurWeight) r.setProperty("--gur-weight", p.gurWeight);
+    var bar = {light:"#F2F4F8", sepia:"#F1E7D3", dark:"#0A1120", night:"#050505"}[t];
+    var m = document.createElement("meta");
+    m.name = "theme-color"; m.content = bar || "#F2F4F8";
+    document.head.appendChild(m);
+  } catch (e) {}
+</script>
+<style>
+  #splash {
+    position: fixed; inset: 0; z-index: 999;
+    display: grid; place-items: center;
+    background: #FFFFFF;
+    transition: opacity 400ms cubic-bezier(0.32,0.72,0,1);
+  }
+  html[data-theme="sepia"] #splash { background: #FBF4E6; }
+  html[data-theme="dark"]  #splash { background: #0C1524; }
+  html[data-theme="night"] #splash { background: #000000; }
+  #splash.gone { opacity: 0; pointer-events: none; }
+  #splash svg { width: 96px; height: 96px;
+    animation: rise 600ms cubic-bezier(0.16,1,0.3,1) both; }
+  @keyframes rise { from { opacity: 0; transform: scale(.9); } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { #splash svg { animation: none; } }
+</style>
+<script>window.GURBANI_STATIC = {base: "data/"};</script>
+</head>
+<body>
+<div id="splash" role="status" aria-label="Loading">
+  <svg viewBox="0 0 554 554" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="sg" x1="0.15" y1="0" x2="0.85" y2="1">
+        <stop offset="0" stop-color="#F7E3AE"/><stop offset="0.28" stop-color="#EBC97D"/>
+        <stop offset="0.55" stop-color="#D2A64F"/><stop offset="0.78" stop-color="#B98A2E"/>
+        <stop offset="1" stop-color="#8C6417"/>
+      </linearGradient>
+    </defs>
+    <path d="M 276,29 264,46 243,67 222,82 227,97 194,118 167,144 152,168 144,196 146,232 159,266 177,292 193,308 208,319 226,326 226,331 219,345 261,370 261,401 259,402 229,385 178,346 144,307 125,271 116,234 116,206 119,189 132,155 142,140 156,126 121,148 105,163 92,180 83,197 77,217 75,251 81,284 93,317 122,370 164,430 169,450 218,408 223,407 234,412 252,426 235,431 214,445 197,464 194,471 195,483 200,489 205,491 220,489 225,484 227,477 226,458 241,448 261,442 263,444 264,482 252,494 251,509 262,522 270,525 283,525 294,520 302,508 301,494 289,482 290,444 292,442 314,449 327,458 326,476 328,484 333,489 348,491 355,488 359,481 359,471 356,464 339,445 324,434 301,426 313,416 327,408 333,407 384,450 389,430 431,370 460,317 475,272 478,231 470,197 454,170 432,148 397,126 411,140 421,155 434,189 437,207 437,234 428,271 409,307 374,347 339,375 293,402 292,370 334,345 327,331 327,326 345,319 360,308 376,292 394,266 407,232 409,196 401,168 386,144 360,119 326,97 331,82 310,67 289,46 Z M 316,120 337,130 365,155 380,180 387,211 381,240 370,261 345,287 319,302 316,302 307,276 299,222 302,172 309,139 Z M 236,120 242,132 250,166 254,222 246,276 237,302 234,302 203,283 183,261 172,240 166,211 173,180 188,155 209,135 Z" fill="url(#sg)" fill-rule="evenodd"/>
+  </svg>
+</div>
+<div id="app"></div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* ===========================================================================
+   The reading pane.
+
+   A wide window is not a licence for wide lines. The column holds a measured
+   width and centres in whatever space the pane has, so widening the window
+   gives margins rather than a harder read.
+   =========================================================================== */
+
+/* Gurmukhi faces. Each is its own family, so a browser downloads only the one
+   in use. Three of the four are variable, so weight is real, not synthesised. */
+@font-face {
+  font-family: "Sant Lipi";
+  src: url("../fonts/SantLipi.woff2") format("woff2-variations"),
+       url("../fonts/SantLipi.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
+}
+@font-face {
+  font-family: "Mukta Mahee"; src: url("../fonts/MuktaMahee.woff2") format("woff2");
+  font-weight: 400; font-display: swap;
+  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
+}
+@font-face {
+  font-family: "Mukta Mahee"; src: url("../fonts/MuktaMahee-700.woff2") format("woff2");
+  font-weight: 700; font-display: swap;
+  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
+}
+@font-face {
+  font-family: "Noto Sans Gurmukhi";
+  src: url("../fonts/NotoSansGurmukhi.woff2") format("woff2-variations"),
+       url("../fonts/NotoSansGurmukhi.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
+}
+@font-face {
+  font-family: "Anek Gurmukhi";
+  src: url("../fonts/AnekGurmukhi.woff2") format("woff2-variations"),
+       url("../fonts/AnekGurmukhi.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
+}
+
+.gur {
+  font-family: var(--gur-font, "Sant Lipi"), "Gurmukhi MN",
+               "Noto Sans Gurmukhi", "Nirmala UI", sans-serif;
+  font-weight: var(--gur-weight, 400);
+  color: var(--gurbani);
+  line-height: 1.85;
+}
+
+/* --- the surface --------------------------------------------------------- */
+.reader-bar {
+  flex: none; height: var(--titlebar-h);
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: 0 var(--s-3);
+  border-bottom: 1px solid var(--separator);
+  background: var(--blur-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+.reader-bar .spacer { flex: 1; }
+.reader-where {
+  font-size: var(--t-small); font-weight: 600; color: var(--label-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.reader-progress {
+  position: absolute; left: 0; top: var(--titlebar-h); height: 2px;
+  background: var(--gold); width: 0; z-index: 5;
+  transition: width 120ms linear;
+}
+
+.reader-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; scroll-behavior: smooth; }
+.reader-scroll.no-smooth { scroll-behavior: auto; }
+
+.reader-doc {
+  max-width: var(--reader-measure);
+  margin: 0 auto;
+  padding: var(--s-10) var(--s-6) 40vh;
+}
+
+.doc-head { text-align: center; padding-bottom: var(--s-8); }
+.doc-head .gur { font-size: calc(2rem * var(--reader-scale)); }
+.doc-head h1 { font-size: var(--t-hero); }
+.doc-head .sub {
+  font-size: var(--t-small); color: var(--label-2); margin-top: var(--s-2);
+}
+
+/* --- a line --------------------------------------------------------------- */
+.line-row { position: relative; }
+.line {
+  position: relative;
+  padding: var(--s-4) var(--s-4);
+  margin: 0 calc(var(--s-4) * -1);
+  border-radius: var(--r-md);
+  text-align: var(--reader-align);
+  transition: background var(--dur-fast) var(--ease);
+}
+.line + .line { border-top: 1px solid var(--separator); }
+.line:hover { background: var(--hover); }
+.line.is-bare { padding-top: var(--s-2); padding-bottom: var(--s-2); }
+.line.is-bare + .line.is-bare { border-top-color: transparent; }
+.line.is-header { text-align: center; }
+
+.line .gur { font-size: calc(1.5rem * var(--reader-scale)); }
+.line .tl {
+  font-size: calc(0.9rem * var(--translit-scale));
+  color: var(--label-2); font-style: italic; margin-top: var(--s-2);
+}
+.line .tr {
+  font-size: calc(0.95rem * var(--translation-scale));
+  color: var(--label-2); margin-top: var(--s-2); line-height: 1.6;
+}
+.line .tr.pa {
+  font-family: var(--gur-font, "Sant Lipi"), "Gurmukhi MN", sans-serif;
+  line-height: 1.75;
+}
+.line .who {
+  font-size: var(--t-micro); color: var(--label-3);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--s-1);
+}
+
+/* The line arrived at from a search or a saved item. */
+.line.is-focus {
+  background: linear-gradient(var(--gold-quiet), var(--gold-quiet)), var(--bg);
+  box-shadow: inset 3px 0 0 var(--gold-bright);
+}
+/* A line the reader kept. */
+.line.is-saved::after {
+  content: ""; position: absolute; top: 12px; right: -2px;
+  width: 11px; height: 15px; background: var(--gold-bright); opacity: .9;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+}
+
+/* Star a line without leaving the keyboard or reaching for a menu. */
+.line-star {
+  position: absolute; top: 10px; left: -34px;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--label-3);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.line-row:hover .line-star { opacity: 1; }
+.line-star:hover { background: var(--fill); color: var(--gold); }
+.line-star.on { opacity: 1; color: var(--gold); }
+.line-star svg { width: 15px; height: 15px; }
+
+/* --- auto-scroll pill ------------------------------------------------------ */
+.speed {
+  position: absolute; left: 50%; bottom: var(--s-6);
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  background: var(--blur-bg);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  border: 1px solid var(--separator);
+  border-radius: var(--r-full);
+  box-shadow: var(--shadow-2);
+  font-size: var(--t-tiny); font-weight: 600;
+  z-index: 6;
+}
+.speed input { width: 12rem; }

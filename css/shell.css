@@ -1,0 +1,201 @@
+/* ===========================================================================
+   The shell: three resizable panes under a title bar.
+
+   Sidebar and list are "chrome" - recessed, translucent, the furniture. The
+   reader is the document surface and is plainly lighter, the way a window's
+   content area sits above its sidebar on macOS.
+   =========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;          /* panes scroll, the window never does */
+}
+
+body {
+  background: var(--bg-chrome);
+  color: var(--label);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+               Roboto, "Helvetica Neue", Inter, system-ui, sans-serif;
+  font-size: var(--t-body);
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button {
+  background: none; border: 0; padding: 0;
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+}
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.015em; }
+p { margin: 0; }
+a { color: var(--accent); }
+
+/* A pointer interface needs a visible focus ring - keyboard is a first-class
+   way to drive this app, not an afterthought. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-thumb {
+  background: var(--fill-strong);
+  border-radius: var(--r-full);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background-clip: content-box; background-color: var(--label-3); }
+::-webkit-scrollbar-track { background: transparent; }
+
+[hidden] { display: none !important; }
+
+/* --- frame -------------------------------------------------------------- */
+#app {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1px var(--list-w) 1px 1fr;
+  grid-template-rows: 100%;
+}
+#app.no-sidebar { grid-template-columns: 0 0 var(--list-w) 1px 1fr; }
+#app.focus-mode { grid-template-columns: 0 0 0 0 1fr; }
+
+.pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.sidebar { background: var(--bg-chrome); overflow: hidden; }
+.list-pane { background: var(--bg-chrome); overflow: hidden; }
+.reader-pane { background: var(--bg); overflow: hidden; }
+
+/* Draggable dividers. Wider hit area than they look, as on macOS. */
+.divider {
+  position: relative;
+  background: var(--separator);
+  cursor: col-resize;
+  transition: background var(--dur-fast) var(--ease);
+}
+.divider::after {
+  content: ""; position: absolute; inset-block: 0; left: -3px; right: -3px;
+}
+.divider:hover, .divider.dragging { background: var(--accent); }
+#app.no-sidebar .divider.d1, #app.focus-mode .divider { pointer-events: none; }
+
+/* --- title bar ---------------------------------------------------------- */
+.titlebar {
+  height: var(--titlebar-h); flex: none;
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: 0 var(--s-3);
+  border-bottom: 1px solid var(--separator);
+  -webkit-app-region: drag;
+}
+.titlebar .spacer { flex: 1; }
+.titlebar-title {
+  font-size: var(--t-small); font-weight: 600;
+  color: var(--label-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* --- icon buttons ------------------------------------------------------- */
+.ib {
+  width: 30px; height: 28px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--label-2);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.ib:hover { background: var(--fill); color: var(--label); }
+.ib:active { background: var(--fill-strong); }
+.ib.on { color: var(--gold); background: var(--gold-quiet); }
+.ib svg { width: 17px; height: 17px; }
+
+/* --- scrolling regions --------------------------------------------------- */
+.scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+
+/* --- sidebar ------------------------------------------------------------- */
+.side-section {
+  font-size: var(--t-micro); font-weight: 600;
+  letter-spacing: 0.055em; text-transform: uppercase;
+  color: var(--label-3);
+  padding: var(--s-4) var(--s-4) var(--s-1);
+}
+.side-item {
+  display: flex; align-items: center; gap: var(--s-2);
+  width: calc(100% - var(--s-4)); margin: 1px var(--s-2);
+  padding: 6px var(--s-2);
+  border-radius: var(--r-sm);
+  text-align: left;
+  color: var(--label);
+  font-size: var(--t-body);
+  transition: background var(--dur-fast) var(--ease);
+}
+.side-item:hover { background: var(--hover); }
+.side-item[aria-current="true"] {
+  background: var(--selected); color: var(--selected-ink); font-weight: 500;
+}
+.side-item[aria-current="true"] .side-icon { color: var(--selected-ink); }
+.side-item[aria-current="true"] .side-count { color: var(--selected-ink); opacity: .75; }
+.side-icon { display: flex; color: var(--label-2); }
+.side-icon svg { width: 16px; height: 16px; }
+.side-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden;
+              text-overflow: ellipsis; }
+.side-count { font-size: var(--t-tiny); color: var(--label-3); font-variant-numeric: tabular-nums; }
+
+.side-foot {
+  flex: none; padding: var(--s-2);
+  border-top: 1px solid var(--separator);
+  display: flex; align-items: center; gap: var(--s-1);
+}
+
+/* --- list pane ----------------------------------------------------------- */
+.list-head {
+  flex: none; padding: var(--s-3);
+  border-bottom: 1px solid var(--separator);
+  display: flex; flex-direction: column; gap: var(--s-2);
+}
+.list-title { font-size: var(--t-heading); font-weight: 600; }
+.list-meta { font-size: var(--t-tiny); color: var(--label-3); }
+
+.row {
+  display: block; width: 100%; text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--separator);
+  transition: background var(--dur-fast) var(--ease);
+}
+.row:hover { background: var(--hover); }
+.row[aria-selected="true"] { background: var(--selected); }
+.row[aria-selected="true"] .row-gur,
+.row[aria-selected="true"] .row-title { color: var(--selected-ink); }
+.row[aria-selected="true"] .row-sub,
+.row[aria-selected="true"] .row-meta { color: var(--selected-ink); opacity: .72; }
+.row-gur { font-size: 1.05rem; line-height: 1.7; }
+.row-title { font-size: var(--t-body); font-weight: 500; }
+.row-sub { font-size: var(--t-tiny); color: var(--label-2); margin-top: 2px; }
+.row-meta { font-size: var(--t-tiny); color: var(--label-3); margin-top: var(--s-1);
+            display: flex; gap: var(--s-2); align-items: center; }
+.row-star { float: right; color: var(--label-3); }
+.row-star.on { color: var(--gold); }
+.row-star svg { width: 15px; height: 15px; }
+
+/* --- empty states -------------------------------------------------------- */
+.empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: var(--s-2);
+  padding: var(--s-10) var(--s-6); text-align: center; color: var(--label-3);
+}
+.empty svg { width: 34px; height: 34px; opacity: .45; }
+.empty h3 { font-size: var(--t-body); color: var(--label-2); font-weight: 600; }
+.empty p { font-size: var(--t-small); max-width: 24rem; line-height: 1.5; }
+
+/* --- narrow windows ------------------------------------------------------ */
+@media (max-width: 1100px) {
+  #app { grid-template-columns: 0 0 var(--list-w) 1px 1fr; }
+  #app.show-sidebar { grid-template-columns: var(--sidebar-w) 1px var(--list-w) 1px 1fr; }
+}
+@media (max-width: 820px) {
+  #app, #app.show-sidebar { grid-template-columns: 0 0 1fr 0 0; }
+  #app.reading, #app.reading.show-sidebar { grid-template-columns: 0 0 0 0 1fr; }
+}
