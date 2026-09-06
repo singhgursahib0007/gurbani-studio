@@ -174,11 +174,18 @@
 #app.immersive .reader-progress { top: 0; opacity: .55; }
 
 #app.immersive .reader-doc {
-  /* Room to read: a third of the viewport above the first line and half below
+  /* Room to read: a fifth of the viewport above the first line and half below
      the last, so a line is never pinned to an edge. */
-  padding-top: 22vh;
+  padding-top: 20vh;
   padding-bottom: 55vh;
-  max-width: calc(var(--reader-measure) + 2rem);
+  padding-left: var(--s-8);
+  padding-right: var(--s-8);
+
+  /* Wider than the windowed column. With the panes gone there is a great deal
+     of screen, and holding the same measure wrapped lines that had no need to
+     wrap. Never narrower than 58rem, never wider than the reader's own
+     setting if they have chosen a wider one, and always inside the viewport. */
+  max-width: min(94vw, max(var(--reader-measure), 58rem));
 }
 #app.immersive .doc-head { padding-bottom: var(--s-12); }
 #app.immersive .line { padding-top: var(--s-5); padding-bottom: var(--s-5); }

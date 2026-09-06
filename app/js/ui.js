@@ -107,19 +107,19 @@ export function popover(anchor, build, { align = "end" } = {}) {
     pop.classList.remove("open");
     setTimeout(() => { pop.remove(); scrim.remove(); }, 140);
     document.removeEventListener("keydown", onKey, true);
-    window.removeEventListener("scroll", onScroll, true);
   }
   function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); close(); } }
 
-  /* Close when the page scrolls out from under the anchor - but NOT when the
-     panel scrolls itself. The listener is in the capture phase so it sees
-     scrolls from any element, including this one, and closing on those made
-     a tall panel impossible to scroll at all. */
-  function onScroll(e) { if (!pop.contains(e.target)) close(); }
-
+  /* Deliberately no close-on-scroll.
+   *
+   * It was there so a panel would not float away from an anchor the page had
+   * scrolled past - but a full-screen scrim sits under this, so the page
+   * cannot be scrolled by hand while a panel is open anyway. What it actually
+   * caught was the app's own scrolling: dragging the text-size slider reflows
+   * the document, the reader's scroll container fires a scroll event, and the
+   * panel closed mid-drag. */
   scrim.addEventListener("mousedown", close);
   document.addEventListener("keydown", onKey, true);
-  window.addEventListener("scroll", onScroll, true);
   return { close, pop };
 }
 

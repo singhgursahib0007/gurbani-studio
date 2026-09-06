@@ -74,6 +74,15 @@ scrolls and any handler watching a pane's scroll never fires. The shell uses a
 fixed `100dvh` grid with `overflow: hidden`, and every scrolling child carries
 `min-height: 0` so a flex item will actually shrink far enough to scroll.
 
+### A popover that closed when the app reflowed
+
+Close-on-scroll had a second, worse failure. Dragging the text-size slider
+changes a CSS variable, the document reflows, the reader's scroll container
+fires a scroll event — and the panel closed mid-drag, so the size could not be
+adjusted at all. Close-on-scroll is gone entirely: a full-screen scrim sits
+under the panel, so the page cannot be scrolled by hand while one is open, and
+the only scrolling it ever caught was the app's own.
+
 ### A popover that closed on its own scroll
 
 The panel closed on any scroll event, registered in the capture phase so it

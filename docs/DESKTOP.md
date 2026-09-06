@@ -62,9 +62,15 @@ gets there faster than a thumb.
 ## Immersive reading
 
 `F` collapses every pane *and* takes the browser full screen, so nothing of
-the window is left. The column gets more air — 22vh above the first line, 55vh
+the window is left. The column gets more air — 20vh above the first line, 55vh
 below the last — and the only control is a small cluster at the corner that
 surfaces when the mouse moves and fades two seconds after it stops.
+
+The column also widens here. With the panes gone there is a great deal of
+screen, and holding the windowed measure wrapped lines that had no need to
+wrap: it goes to `min(94vw, max(measure, 58rem))` — 928px instead of 640px on
+a 1440px display — never narrower than 58rem, never narrower than the reader's
+own setting if they chose a wider one.
 
 Leaving works either way round: `Esc`, the control, or the browser's own
 full-screen exit. The `fullscreenchange` event is the single source of truth,
