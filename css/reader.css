@@ -161,3 +161,61 @@
   z-index: 6;
 }
 .speed input { width: 12rem; }
+
+/* ===========================================================================
+   Immersive reading.
+
+   Everything but the words. The chrome is not merely hidden - the page gets
+   more air, the column can breathe, and the only control is a small cluster
+   that surfaces when the mouse moves and fades again when it stops.
+   =========================================================================== */
+
+#app.immersive .reader-bar { opacity: 0; pointer-events: none; }
+#app.immersive .reader-progress { top: 0; opacity: .55; }
+
+#app.immersive .reader-doc {
+  /* Room to read: a third of the viewport above the first line and half below
+     the last, so a line is never pinned to an edge. */
+  padding-top: 22vh;
+  padding-bottom: 55vh;
+  max-width: calc(var(--reader-measure) + 2rem);
+}
+#app.immersive .doc-head { padding-bottom: var(--s-12); }
+#app.immersive .line { padding-top: var(--s-5); padding-bottom: var(--s-5); }
+#app.immersive .line.is-bare { padding-top: var(--s-3); padding-bottom: var(--s-3); }
+#app.immersive .line-star { opacity: 0; }
+#app.immersive .line-row:hover .line-star { opacity: .55; }
+
+.reader-bar { transition: opacity var(--dur) var(--ease); }
+
+/* The floating cluster. Present only in immersive mode, and only while the
+   pointer is doing something. */
+.immersive-controls {
+  position: absolute; right: var(--s-5); bottom: var(--s-5); z-index: 8;
+  display: none;
+  align-items: center; gap: var(--s-1);
+  padding: var(--s-1);
+  background: var(--blur-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--separator);
+  border-radius: var(--r-full);
+  box-shadow: var(--shadow-2);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transform: translateY(6px);
+}
+#app.immersive .immersive-controls { display: flex; }
+#app.immersive.pointer-live .immersive-controls { opacity: 1; transform: none; }
+
+.immersive-title {
+  position: absolute; left: 0; right: 0; top: var(--s-5); z-index: 7;
+  display: none;
+  text-align: center;
+  font-size: var(--t-tiny); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--label-3);
+  opacity: 0; transition: opacity var(--dur) var(--ease);
+  pointer-events: none;
+}
+#app.immersive .immersive-title { display: block; }
+#app.immersive.pointer-live .immersive-title { opacity: 1; }

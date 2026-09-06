@@ -62,14 +62,33 @@ a { color: var(--accent); }
   display: grid;
   grid-template-columns: var(--sidebar-w) 1px var(--list-w) 1px 1fr;
   grid-template-rows: 100%;
+  /* Panes slide rather than snap. Every track is a length, which is what
+     makes grid-template-columns interpolable. */
+  transition: grid-template-columns var(--dur) var(--ease);
 }
-#app.no-sidebar { grid-template-columns: 0 0 var(--list-w) 1px 1fr; }
-#app.focus-mode { grid-template-columns: 0 0 0 0 1fr; }
+#app.no-sidebar          { grid-template-columns: 0px 0px var(--list-w) 1px 1fr; }
+#app.no-list             { grid-template-columns: var(--sidebar-w) 1px 0px 0px 1fr; }
+#app.no-sidebar.no-list,
+#app.focus-mode,
+#app.immersive           { grid-template-columns: 0px 0px 0px 0px 1fr; }
+
+/* A collapsing pane should fade as it narrows, not have its contents squashed
+   against the edge on the way out. */
+.sidebar > *, .list-pane > * {
+  transition: opacity var(--dur-fast) var(--ease);
+}
+#app.no-sidebar .sidebar > *,
+#app.focus-mode .sidebar > *, #app.immersive .sidebar > * { opacity: 0; }
+#app.no-list .list-pane > *,
+#app.focus-mode .list-pane > *, #app.immersive .list-pane > * { opacity: 0; }
 
 .pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .sidebar { background: var(--bg-chrome); overflow: hidden; }
 .list-pane { background: var(--bg-chrome); overflow: hidden; }
-.reader-pane { background: var(--bg); overflow: hidden; }
+/* position:relative so the reading-progress bar is measured against this
+   pane. Without it the bar resolves against the viewport and stretches across
+   the sidebars, which is not what it is reporting on. */
+.reader-pane { background: var(--bg); overflow: hidden; position: relative; }
 
 /* Draggable dividers. Wider hit area than they look, as on macOS. */
 .divider {

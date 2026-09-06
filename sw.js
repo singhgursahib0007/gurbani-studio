@@ -21,7 +21,7 @@
  * and the old one is deleted on activate.
  */
 
-const BUILD = "20260906-044311";
+const BUILD = "20260906-054948";
 const CACHE = `gurbani-studio-${BUILD}`;
 
 /* Paths are relative so this works both at the site root and under a
