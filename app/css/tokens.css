@@ -1,0 +1,189 @@
+/* ===========================================================================
+   Design tokens — desktop.
+
+   Same navy-and-gold palette as the phone app, but tuned for a pointer and a
+   large screen: a smaller base size (macOS sets UI at 13px, not 17), tighter
+   spacing, and the hover and focus states a touch interface has no use for.
+
+   Themes: light · sepia · dark · night
+   =========================================================================== */
+
+:root {
+  /* --- brand ---------------------------------------------------------- */
+  --navy-900: #0B1A33;
+  --navy-800: #12294B;
+  --navy-700: #1B3A6B;
+  --navy-600: #24518F;
+  --navy-300: #7FA8E8;
+  --navy-100: #E7EEF9;
+
+  --gold-700: #8C6417;
+  --gold-600: #B8892B;
+  --gold-500: #C9A227;
+  --gold-400: #DDBB55;
+  --gold-300: #EFC96E;
+  --gold-100: #FBF3DF;
+
+  /* --- type: macOS scale, not iOS ------------------------------------- */
+  --t-hero:     1.75rem;   /* 28 — a bani title */
+  --t-title:    1.25rem;   /* 20 */
+  --t-heading:  1rem;      /* 16 */
+  --t-body:     0.875rem;  /* 14 — the interface default */
+  --t-small:    0.8125rem; /* 13 */
+  --t-tiny:     0.75rem;   /* 12 */
+  --t-micro:    0.6875rem; /* 11 — sidebar section labels */
+
+  /* --- spacing: a 4pt grid, denser than the phone --------------------- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 56px;
+
+  --r-sm: 5px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-full: 999px;
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur: 220ms;
+
+  /* --- pane geometry, persisted and set from JS ------------------------ */
+  --sidebar-w: 248px;
+  --list-w: 372px;
+  --titlebar-h: 46px;
+
+  /* --- reader --------------------------------------------------------- */
+  --reader-measure: 40rem;   /* the column width, adjustable */
+  --reader-scale: 1;
+  --translit-scale: 1;
+  --translation-scale: 1;
+  --reader-align: center;
+  --gur-font: "Sant Lipi";
+  --gur-weight: 400;
+}
+
+/* --- Light -------------------------------------------------------------- */
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --bg:            #FFFFFF;   /* the reading surface */
+  --bg-chrome:     #F2F4F8;   /* sidebar and list: recessed, as on macOS */
+  --bg-elevated:   #FFFFFF;
+  --bg-sunken:     #E8ECF3;
+  --fill:          rgba(18, 41, 75, 0.055);
+  --fill-strong:   rgba(18, 41, 75, 0.10);
+  --separator:     rgba(18, 41, 75, 0.11);
+
+  --label:         #0B1A33;
+  --label-2:       rgba(11, 26, 51, 0.60);
+  --label-3:       rgba(11, 26, 51, 0.38);
+
+  --accent:        var(--navy-700);
+  --accent-quiet:  var(--navy-100);
+  --gold:          #8F6D12;      /* 4.6:1 on white — the label is 11px */
+  --gold-bright:   var(--gold-600);
+  --gold-quiet:    rgba(184, 137, 43, 0.14);
+
+  --selected:      var(--navy-700);
+  --selected-ink:  #FFFFFF;
+  --hover:         rgba(18, 41, 75, 0.05);
+
+  --gurbani:       #12294B;
+  --shadow-1: 0 1px 2px rgba(11,26,51,.06), 0 2px 8px rgba(11,26,51,.05);
+  --shadow-2: 0 4px 14px rgba(11,26,51,.10), 0 24px 48px rgba(11,26,51,.13);
+  --blur-bg: rgba(242, 244, 248, 0.78);
+}
+
+/* --- Sepia -------------------------------------------------------------- */
+[data-theme="sepia"] {
+  color-scheme: light;
+  --bg:            #FBF4E6;
+  --bg-chrome:     #F1E7D3;
+  --bg-elevated:   #FFFAF0;
+  --bg-sunken:     #E8DAC0;
+  --fill:          rgba(78, 58, 26, 0.06);
+  --fill-strong:   rgba(78, 58, 26, 0.12);
+  --separator:     rgba(78, 58, 26, 0.14);
+
+  --label:         #3B2E1B;
+  --label-2:       rgba(59, 46, 27, 0.62);
+  --label-3:       rgba(59, 46, 27, 0.40);
+
+  --accent:        #7A5A1F;
+  --accent-quiet:  #F0E3C8;
+  --gold:          #7E5A0F;
+  --gold-bright:   var(--gold-700);
+  --gold-quiet:    rgba(122, 90, 31, 0.15);
+
+  --selected:      #7A5A1F;
+  --selected-ink:  #FFF8EC;
+  --hover:         rgba(78, 58, 26, 0.05);
+
+  --gurbani:       #33260F;
+  --shadow-1: 0 1px 2px rgba(78,58,26,.07), 0 2px 8px rgba(78,58,26,.06);
+  --shadow-2: 0 4px 14px rgba(78,58,26,.12), 0 24px 48px rgba(78,58,26,.15);
+  --blur-bg: rgba(241, 231, 211, 0.80);
+}
+
+/* --- Dark: navy-tinted, not flat grey ----------------------------------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:            #0C1524;
+  --bg-chrome:     #0A1120;
+  --bg-elevated:   #16223A;
+  --bg-sunken:     #060B14;
+  --fill:          rgba(255, 255, 255, 0.06);
+  --fill-strong:   rgba(255, 255, 255, 0.12);
+  --separator:     rgba(255, 255, 255, 0.10);
+
+  --label:         #EEF3FA;
+  --label-2:       rgba(238, 243, 250, 0.62);
+  --label-3:       rgba(238, 243, 250, 0.38);
+
+  --accent:        var(--navy-300);
+  --accent-quiet:  rgba(127, 168, 232, 0.15);
+  --selected:      #23406F;
+  --gold:          var(--gold-300);
+  --gold-bright:   var(--gold-300);
+  --gold-quiet:    rgba(239, 201, 110, 0.14);
+
+  --selected-ink:  #FFFFFF;
+  --hover:         rgba(255, 255, 255, 0.05);
+
+  --gurbani:       #E8EFFA;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.3);
+  --shadow-2: 0 4px 14px rgba(0,0,0,.5), 0 24px 48px rgba(0,0,0,.45);
+  --blur-bg: rgba(10, 17, 32, 0.78);
+}
+
+
+/* --- Night: true black --------------------------------------------------- */
+[data-theme="night"] {
+  color-scheme: dark;
+  --bg:            #000000;
+  --bg-chrome:     #050505;
+  --bg-elevated:   #0C1017;
+  --bg-sunken:     #000000;
+  --fill:          rgba(255, 255, 255, 0.05);
+  --fill-strong:   rgba(255, 255, 255, 0.10);
+  --separator:     rgba(255, 255, 255, 0.08);
+
+  --label:         #C8D2E0;
+  --label-2:       rgba(200, 210, 224, 0.55);
+  --label-3:       rgba(200, 210, 224, 0.32);
+
+  --accent:        #6E93D0;
+  --accent-quiet:  rgba(110, 147, 208, 0.13);
+  --gold:          #E3C173;
+  --gold-bright:   #E3C173;
+  --gold-quiet:    rgba(227, 193, 115, 0.12);
+
+  --selected:      #16233A;
+  --selected-ink:  #EAF0FA;
+  --hover:         rgba(255, 255, 255, 0.045);
+
+  --gurbani:       #CBD7E8;
+  --shadow-1: none;
+  --shadow-2: 0 4px 14px rgba(0,0,0,.7), 0 24px 48px rgba(0,0,0,.6);
+  --blur-bg: rgba(5, 5, 5, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur: 0ms; }
+}

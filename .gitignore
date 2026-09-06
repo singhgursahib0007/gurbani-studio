@@ -1,0 +1,7 @@
+# The corpus is fetched and built by the harness, or downloaded from the
+# published site. It cannot live in git: gurbani.sqlite is 394 MB and GitHub
+# rejects any file over 100 MB.
+data/
+site/
+__pycache__/
+*.pyc
