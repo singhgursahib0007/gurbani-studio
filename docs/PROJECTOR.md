@@ -21,7 +21,9 @@ That single constraint explains almost every decision below.
 The stage takes all the width it can have; the glass panel on the right slides
 away with `S`.
 
-Enter with **`P`**, `⌘⇧P`, the projector button in the reader bar, or the
+Enter from the **gold button at the top of the sidebar** — above Find, on its
+own, because it is not another place to go but the one control that hands the
+whole screen to a hall. Also `P`, `⌘⇧P`, the button in the reader bar, or the
 command palette. Leave with **`Esc`**.
 
 ## Keys
@@ -37,7 +39,7 @@ all of them advance.
 | `Home` `End` | First line, last line |
 | `B` | Blank the screen |
 | `S` | Show or hide the panel |
-| `1` `2` `3` `4` | Lines · Search · Recent · Look |
+| `1` – `5` | Lines · Banis · Search · Recent · Look |
 | `/` or `⌘K` | Jump to search |
 | `+` `−` | Text size |
 | `L` | Larivaar |
@@ -48,6 +50,12 @@ all of them advance.
 in front of the beam — a presenter needs one key that makes the screen go away
 without losing their place. Advancing un-blanks, so there is no way to get
 stuck behind it.
+
+It does not blank to nothing. A screen that goes empty mid-diwan reads as a
+fault — a dead laptop, a dropped cable — and people look at the technology
+instead of away from it. So `B` leaves **ਵਾਹਿਗੁਰੂ** where the Gurbani was, at
+half strength: quiet enough to be a rest, present enough that the screen is
+plainly still working.
 
 ## Type is fitted once per shabad, not once per line
 
@@ -87,11 +95,15 @@ just noise with Gurbani showing through it.
 
 Drag its left edge to resize, 320–680px. The width persists.
 
-### The four tabs
+### The five tabs
 
 **Lines** — the default, and the reason the panel exists. Every line of what
 is open, current one marked, click to jump. During kirtan the ragi jumps
 about; hunting for the line by pressing `→` forty times is not a workflow.
+
+**Banis** — the catalogue, filterable by name, so a bani can be put on the
+screen without leaving projector mode. It opens through the same path as
+everything else, which means it lands in Recent too.
 
 **Search** — first-letter search with the field at the top, results under it,
 and the [Gurmukhi keyboard](GURMUKHI.md#the-keyboard) at the bottom.
@@ -109,8 +121,13 @@ it stays a working set rather than an archive. Re-opening something moves it
 up rather than adding a duplicate, because the same shabad comes back.
 
 **Look** — five palettes chosen for a lamp rather than a monitor, plus a
-colour picker for each of the two colours; text size; alignment; and toggles
-for transliteration, English, Punjabi, larivaar and the caption.
+colour picker for each of the two colours; **weight** (regular, medium, bold —
+a heavier face carries further through a lamp than a larger light one); text
+size; alignment; and toggles for transliteration, English, Punjabi, larivaar
+and the caption.
+
+The weight applies to the projected line, not to the panel's own lists and not
+to the reader behind — the control means "the Gurbani on the screen".
 
 ## Colours are not the app's themes
 
@@ -132,9 +149,9 @@ custom colours too and not only the five presets.
 
 ## Preferences are its own set
 
-`projBg`, `projInk`, `projScale`, `projTranslit`, `projEn`, `projPa`,
-`projLarivaar`, `projCaption`, and the panel's own state — all separate from
-the reader's.
+`projBg`, `projInk`, `projWeight`, `projScale`, `projTranslit`, `projEn`,
+`projPa`, `projLarivaar`, `projCaption`, and the panel's own state — all
+separate from the reader's.
 
 A hall wants larger type and fewer streams under each line than a desk does.
 Sharing one set of settings would mean redoing them every time the laptop is
@@ -161,6 +178,19 @@ close button are the ways out, and `F` toggles full screen on its own.
 Whatever was moved to while presenting is what the reader shows on exit. If
 you searched your way to Ang 681 in front of the sangat, closing the projector
 leaves you on Ang 681, not back where you started.
+
+## A trap: a panel moved by `transform` is still there
+
+Sliding the panel away with `translateX(101%)` moves it out of sight, not out
+of the document. It keeps its place in the layout and everything inside it
+stays focusable — so pressing `3` for Search with the panel closed focused a
+field inside it, the browser scrolled the panel into view to reveal the focus,
+and the result *looked* open while the state, the collapse button and the
+handle all still said closed.
+
+Two fixes, both needed. Asking for a tab now opens the panel, because asking
+for a tab means asking to see it. And the closed panel gets `inert`, which is
+what actually takes it out of reach — `transform` and `opacity` never do.
 
 ## Where it lives
 

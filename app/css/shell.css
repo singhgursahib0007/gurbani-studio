@@ -135,6 +135,62 @@ a { color: var(--accent); }
 .scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 
 /* --- sidebar ------------------------------------------------------------- */
+
+/* The projector button.
+   Above everything, and the only gold thing in the sidebar - this app spends
+   gold on one element at a time, and in a sidebar full of destinations the
+   one that hands the screen to a hall is the one worth spending it on. */
+.side-project {
+  display: flex; align-items: center; gap: var(--s-3);
+  width: calc(100% - var(--s-4)); margin: var(--s-3) var(--s-2) var(--s-1);
+  padding: 9px var(--s-3);
+  text-align: left;
+  border-radius: var(--r-md);
+  color: var(--gold);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--gold) 15%, transparent),
+      color-mix(in srgb, var(--gold) 8%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 32%, transparent);
+  transition: background var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.side-project:hover {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--gold) 24%, transparent),
+      color-mix(in srgb, var(--gold) 14%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 52%, transparent),
+              0 1px 8px color-mix(in srgb, var(--gold) 22%, transparent);
+}
+.side-project:active { transform: scale(0.985); }
+
+/* Browsers without color-mix get flat alphas rather than no button at all. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .side-project { background: var(--gold-quiet); box-shadow: none;
+                  border: 1px solid var(--gold-quiet); }
+}
+
+.side-project-icon { display: flex; flex: none; }
+.side-project-icon svg { width: 18px; height: 18px; }
+.side-project-label { flex: 1; min-width: 0; display: grid; }
+.side-project-label .t {
+  font-size: var(--t-body); font-weight: 600; letter-spacing: -0.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.side-project-label .s {
+  font-size: var(--t-tiny); opacity: 0.72;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.side-project-key {
+  flex: none;
+  padding: 1px 6px; border-radius: var(--r-sm);
+  font-size: var(--t-tiny); font-weight: 600;
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  opacity: 0.85;
+}
+
 .side-section {
   font-size: var(--t-micro); font-weight: 600;
   letter-spacing: 0.055em; text-transform: uppercase;

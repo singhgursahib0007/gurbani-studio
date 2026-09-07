@@ -92,11 +92,14 @@ they had and come back untouched.
 
 It has its own document: **[PROJECTOR](PROJECTOR.md)**.
 
-The short version: a glass panel on the right slides away with `S`; its four
-tabs are the lines of what is open, first-letter search with the Gurmukhi
-keyboard, the last 24 hours, and the colours; `→` `Space` `⇟` advance and
-`←` `⇞` go back, because that is what a presentation clicker sends; `B` blanks
-the screen.
+The short version: a glass panel on the right slides away with `S`; its five
+tabs are the lines of what is open, the bani catalogue, first-letter search
+with the Gurmukhi keyboard, the last 24 hours, and the colours; `→` `Space`
+`⇟` advance and `←` `⇞` go back, because that is what a presentation clicker
+sends; `B` rests the screen on ਵਾਹਿਗੁਰੂ.
+
+Entered from the gold button at the top of the sidebar, `P`, the reader bar,
+or the command palette.
 
 ## Collapsing panes
 

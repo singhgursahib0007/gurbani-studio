@@ -41,12 +41,13 @@ letter to press in its corner.
 `⌘S` save · `⌘P` command palette · `⌘,` settings · `F` immersive ·
 `P` projector.
 
-**Projector mode, for a diwan hall.** `P` hands the screen over: one line of
-Gurbani as large as the shabad allows, advanced like a slideshow with the
-arrow keys, space or a presentation clicker. A glass panel on the right — the
-lines of what is open, first-letter search with the Gurmukhi keyboard, the
-last 24 hours, and the colours — slides away with `S` when it is not wanted.
-`B` blanks the screen. See **[PROJECTOR](docs/PROJECTOR.md)**.
+**Projector mode, for a diwan hall.** The gold button at the top of the
+sidebar, or `P`, hands the screen over: one line of Gurbani as large as the
+shabad allows, advanced like a slideshow with the arrow keys, space or a
+presentation clicker. A glass panel on the right — the lines of what is open,
+the bani catalogue, first-letter search with the Gurmukhi keyboard, the last
+24 hours, and the colours — slides away with `S` when it is not wanted. `B`
+rests the screen on **ਵਾਹਿਗੁਰੂ**. See **[PROJECTOR](docs/PROJECTOR.md)**.
 
 <img alt="Projector mode: the Mool Mantar filling the screen, with a glass panel on the right listing every line of Japji Sahib" src="docs/assets/projector-lines.png">
 

@@ -48,6 +48,28 @@ html.projecting, html.projecting body { overflow: hidden; }
 .proj.side-closed .pj-stage { padding-right: 0; }
 .proj.blank .pj-stage { opacity: 0; }
 
+/* --- blanked ---------------------------------------------------------------
+   `B` takes the shabad off the screen. It does not leave a black rectangle:
+   mid-diwan an empty screen reads as a fault, and the Name does not. The word
+   sits where the Gurbani was, quiet enough to be a rest rather than a slide. */
+.pj-blank {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  padding-right: var(--proj-side-w, 400px);
+  opacity: 0; pointer-events: none;
+  transition: padding-right var(--dur) var(--ease),
+              opacity 320ms var(--ease);
+}
+.proj.side-closed .pj-blank { padding-right: 0; }
+.proj.blank .pj-blank { opacity: 1; }
+.pj-blank-word {
+  font-size: clamp(44px, 9vw, 190px);
+  line-height: 1.4;
+  color: var(--proj-ink, #fff);
+  opacity: 0.5;
+  letter-spacing: 0.01em;
+}
+
 /* Minimal margins on purpose: a projected line should use the glass it is
    given. 3vw is enough to keep descenders off a screen edge and no more. */
 .pj-stage-inner {

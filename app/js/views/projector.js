@@ -26,17 +26,19 @@
 
 import { el, clear, iconBtn } from "../ui.js";
 import { Icons } from "../icons.js";
-import { store, PROJ_PRESETS, isDarkColour } from "../store.js";
+import { store, PROJ_PRESETS, WEIGHTS, isDarkColour } from "../store.js";
 import { loadRecord, nameLine } from "../record.js";
-import { toLarivaar, search as runSearch, loadIndex, indexReady } from "../data.js";
+import { toLarivaar, search as runSearch, loadIndex, indexReady, getMeta } from "../data.js";
+import { baniName } from "../banis-info.js";
 import { KB_ROWS, A2U, LETTER_NAMES, toGurmukhi, toAscii } from "../gurmukhi.js";
 
 const MIN_LETTERS = 2;
 const TABS = [
-  { id: "lines",  label: "Lines",  icon: "list",      key: "1" },
-  { id: "search", label: "Search", icon: "search",    key: "2" },
-  { id: "recent", label: "Recent", icon: "clock",     key: "3" },
-  { id: "look",   label: "Look",   icon: "palette",   key: "4" },
+  { id: "lines",  label: "Lines",  icon: "list",    key: "1" },
+  { id: "banis",  label: "Banis",  icon: "book",    key: "2" },
+  { id: "search", label: "Search", icon: "search",  key: "3" },
+  { id: "recent", label: "Recent", icon: "clock",   key: "4" },
+  { id: "look",   label: "Look",   icon: "palette", key: "5" },
 ];
 
 export function projectorView({ onExit } = {}) {
@@ -51,6 +53,11 @@ export function projectorView({ onExit } = {}) {
   const stageInner = el("div.pj-stage-inner", {}, [slide]);
   const caption = el("div.pj-caption");
   const stage = el("div.pj-stage", {}, [stageInner, caption]);
+
+  /* What the screen shows when it is blanked. An empty screen mid-diwan reads
+     as a fault; the Name does not. */
+  const blankWord = el("div.pj-blank", { "aria-hidden": "true" },
+                       [el("div.pj-blank-word.gur", { text: "ਵਾਹਿਗੁਰੂ" })]);
 
   /* An off-screen twin of the slide, used to measure candidate type sizes
      without the real one flickering through them. */
@@ -90,7 +97,7 @@ export function projectorView({ onExit } = {}) {
     iconBtn("xmark", "Leave projector  ·  Esc", () => exit(), "pj-ib"),
   ]);
 
-  root.append(stage, side, handle, bar);
+  root.append(stage, blankWord, side, handle, bar);
 
   /* --- state -------------------------------------------------------------- */
   let on = false;
@@ -270,6 +277,10 @@ export function projectorView({ onExit } = {}) {
 
   function setSide(open, { silent } = {}) {
     root.classList.toggle("side-closed", !open);
+    /* Moved off screen by a transform, the panel is still in the layout and
+       still focusable. `inert` is what actually takes it out of reach, so
+       nothing inside it can pull itself back into view. */
+    side.inert = !open;
     if (!silent) { store.set("projSideOpen", !!open); wake(); }
     // The stage narrows, so the fitted size is no longer the right one. Wait
     // for the slide transition to finish before measuring against it.
@@ -278,11 +289,17 @@ export function projectorView({ onExit } = {}) {
 
   function setTab(id, { silent } = {}) {
     store.set("projTab", id);
+    /* Asking for a tab means asking to see it. Without this, `3` for Search
+       left the panel closed and then focused a field inside it, and the
+       browser scrolled the panel into view to reveal the focus - so it looked
+       open while the state, the button and the handle all still said closed. */
+    if (!silent && root.classList.contains("side-closed")) setSide(true);
     [...tabStrip.children].forEach((b) =>
       b.setAttribute("aria-selected", String(b.dataset.tab === id)));
     Object.entries(panes).forEach(([k, node]) => { node.hidden = k !== id; });
     if (id === "search" && !silent) setTimeout(() => qInput.focus(), 30);
     if (id === "recent") drawRecent();
+    if (id === "banis") drawBanis();
     if (id === "lines") markCurrentLine();
   }
 
@@ -322,6 +339,56 @@ export function projectorView({ onExit } = {}) {
     const rows = linesList.children;
     for (const r of rows) r.setAttribute("aria-current", String(+r.dataset.i === at));
     rows[at]?.scrollIntoView({ block: "nearest" });
+  }
+
+  /* --- Banis ---------------------------------------------------------------
+   * The catalogue, so a bani can be put on the screen without leaving
+   * projector mode. Opening one goes through the same open() as everything
+   * else, so it lands in Recent too.
+   */
+  const baniFilter = el("input", {
+    type: "search", spellcheck: "false", autocomplete: "off",
+    placeholder: "Filter banis", "aria-label": "Filter banis",
+    oninput: () => drawBanis(),
+    onkeydown: (e) => {
+      if (e.key === "Escape" && baniFilter.value) {
+        e.preventDefault(); e.stopPropagation();
+        baniFilter.value = ""; drawBanis();
+      } else if (e.key !== "Escape") e.stopPropagation();
+    },
+  });
+  const baniList = el("div.pj-list");
+  panes.banis = el("div.pj-pane", {}, [
+    el("div.pj-field", {}, [
+      el("span.pj-field-icon", { html: Icons.search }), baniFilter,
+    ]),
+    baniList,
+  ]);
+
+  let allBanis = null;
+  async function drawBanis() {
+    if (!allBanis) {
+      baniList.replaceChildren(el("div.pj-empty", { text: "Loading…" }));
+      allBanis = (await getMeta()).banis || [];
+    }
+    const q = baniFilter.value.trim().toLowerCase();
+    const shown = allBanis.filter((b) =>
+      !q || baniName(b).toLowerCase().includes(q) ||
+      (b.unicode || "").includes(baniFilter.value.trim()));
+
+    clear(baniList);
+    if (!shown.length) {
+      baniList.append(el("div.pj-empty", { text: "No bani by that name." }));
+      return;
+    }
+    shown.forEach((b) => {
+      baniList.append(el("button.pj-recent", {
+        onclick: () => open({ type: "bani", id: b.bani_id }),
+      }, [
+        el("div.pj-recent-gur.gur", { text: b.unicode || "" }),
+        el("div.pj-recent-meta", { text: baniName(b) }),
+      ]));
+    });
   }
 
   /* --- Search ------------------------------------------------------------- */
@@ -517,6 +584,9 @@ export function projectorView({ onExit } = {}) {
     ]));
 
     pane.append(el("div.pj-group-title", { text: "Size and layout" }));
+    pane.append(seg("Weight", WEIGHTS.map((w) => ({ value: w.value, label: w.label })),
+      store.get("projWeight"),
+      (v) => { store.set("projWeight", v); paintColours(); layout(); showLine(at); }));
     pane.append(range({
       label: "Text size", min: 40, max: 100, step: 1,
       value: Math.round((store.get("projScale") || 1) * 100),
@@ -541,9 +611,9 @@ export function projectorView({ onExit } = {}) {
     [
       ["→  ␣  ⇟", "Next line"],
       ["←  ⇞", "Previous line"],
-      ["B", "Blank the screen"],
+      ["B", "Blank the screen — ਵਾਹਿਗੁਰੂ"],
       ["S", "Show or hide this panel"],
-      ["1 – 4", "Lines · Search · Recent · Look"],
+      ["1 – 5", "Lines · Banis · Search · Recent · Look"],
       ["/", "Jump to search"],
       ["+  −", "Text size"],
       ["Esc", "Leave projector"],
@@ -621,6 +691,13 @@ export function projectorView({ onExit } = {}) {
     root.style.setProperty("--proj-ink", ink);
     root.style.setProperty("--proj-align",
       store.get("projAlign") === "start" ? "start" : "center");
+    /* On the stage only, not on .proj as a whole. A heavier face carries
+       further through a lamp than a larger light one - but the control means
+       "the Gurbani being projected", so the panel's own lists stay regular
+       and the reader behind is untouched either way. */
+    const w = String(store.get("projWeight") || 400);
+    stage.style.setProperty("--gur-weight", w);
+    blankWord.style.setProperty("--gur-weight", w);
     // Glass, hairlines and hover states have to flip with the background, or
     // the panel is invisible on Paper and blinding on Black.
     root.dataset.lum = isDarkColour(bg) ? "dark" : "light";
@@ -724,13 +801,14 @@ export function projectorView({ onExit } = {}) {
   });
 
   /* --- first paint of the panel -------------------------------------------- */
-  body.append(panes.lines, panes.search, panes.recent, panes.look);
+  body.append(panes.lines, panes.banis, panes.search, panes.recent, panes.look);
   root.style.setProperty("--proj-side-w", `${store.get("projSideWidth") || 400}px`);
   paintColours();
   drawKeys();
   runQuery();
   drawLines();
   drawRecent();
+  drawBanis();
 
   return {
     root,

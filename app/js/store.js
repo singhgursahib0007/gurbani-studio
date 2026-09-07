@@ -50,6 +50,7 @@ export const DEFAULTS = Object.freeze({
   projPreset: "black",
   projBg: "#000000",
   projInk: "#FFFFFF",
+  projWeight: 400,           // 400 regular · 500 medium · 700 bold
   projScale: 1,              // fraction of the stage the text may fill
   projAlign: "center",
   projTranslit: true,

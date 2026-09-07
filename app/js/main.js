@@ -38,6 +38,7 @@ const side = sidebar({
   },
   onSettings: openSettings,
   onAppearance: openAppearance,
+  onProject: () => startProjector(),
 });
 
 /* Projector mode is a sibling of the shell rather than a state of it: the
