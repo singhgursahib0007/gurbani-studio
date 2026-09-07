@@ -1,0 +1,473 @@
+/* ===========================================================================
+   Projector mode.
+
+   This screen is the screen the sangat is looking at, so the rules are not the
+   rules of the rest of the app. Colours come from the presenter's own choice
+   rather than the app theme, the type is as large as the shabad allows, and
+   the only furniture is a glass panel that slides away to the right.
+
+   Everything here is scoped under .proj, which is a sibling of #app rather
+   than part of it — the three-pane shell keeps its state untouched underneath.
+   =========================================================================== */
+
+.proj {
+  position: fixed; inset: 0; z-index: 120;
+  background: var(--proj-bg, #000);
+  color: var(--proj-ink, #fff);
+  overflow: hidden;
+  /* Furniture alphas, flipped by data-lum so the glass reads on any ground. */
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-2: rgba(255, 255, 255, 0.12);
+  --hair: rgba(255, 255, 255, 0.14);
+  --quiet: 0.62;
+}
+.proj[data-lum="light"] {
+  --glass: rgba(10, 20, 40, 0.05);
+  --glass-2: rgba(10, 20, 40, 0.10);
+  --hair: rgba(10, 20, 40, 0.13);
+}
+
+/* .gur sets `color: var(--gurbani)` from the app theme, which has nothing to
+   do with the colours chosen for the hall - navy-white Gurmukhi on a Paper
+   background is invisible. Inside projector mode the presenter's own ink wins
+   everywhere, and each part then dims itself with opacity. */
+.proj .gur { color: inherit; }
+
+/* The shell below is not merely covered — it stops scrolling and stops
+   animating, so nothing of it bleeds through a translucent panel. */
+html.projecting, html.projecting body { overflow: hidden; }
+
+/* --- the stage ----------------------------------------------------------- */
+.pj-stage {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding-right: var(--proj-side-w, 400px);
+  transition: padding-right var(--dur) var(--ease), opacity 260ms var(--ease);
+}
+.proj.side-closed .pj-stage { padding-right: 0; }
+.proj.blank .pj-stage { opacity: 0; }
+
+/* Minimal margins on purpose: a projected line should use the glass it is
+   given. 3vw is enough to keep descenders off a screen edge and no more. */
+.pj-stage-inner {
+  position: relative;
+  min-width: 0; min-height: 0;
+  display: grid; place-items: center;
+  padding: 2.5vh 3vw;
+}
+
+.pj-slide {
+  --pg: 64px;
+  width: 100%;
+  text-align: var(--proj-align, center);
+  display: flex; flex-direction: column; gap: calc(var(--pg) * 0.34);
+  align-items: var(--proj-align, center);
+}
+.pj-gur {
+  font-size: var(--pg);
+  line-height: 1.5;
+  color: var(--proj-ink, #fff);
+  letter-spacing: 0.005em;
+}
+.pj-tl, .pj-en, .pj-pa {
+  color: var(--proj-ink, #fff);
+  opacity: var(--quiet);
+  line-height: 1.45;
+}
+.pj-tl { font-size: calc(var(--pg) * 0.30); font-style: italic; }
+.pj-en { font-size: calc(var(--pg) * 0.32); }
+.pj-pa { font-size: calc(var(--pg) * 0.34); line-height: 1.6; }
+
+/* The measuring twin. Laid out for real — same width, same wrapping — but
+   never painted and never part of the flow the eye sees. */
+.pj-measure {
+  position: absolute; top: 0; left: 0;
+  /* Width is set from JS to the real content width; left/right here would
+     resolve against the padding box and measure too generously. */
+  visibility: hidden; pointer-events: none;
+}
+
+.pj-caption {
+  padding: 0 3vw 2.2vh;
+  text-align: var(--proj-align, center);
+  font-size: clamp(11px, 1.05vw, 15px);
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--proj-ink, #fff);
+  opacity: 0.33;
+}
+
+/* --- the glass panel ------------------------------------------------------ */
+.pj-side {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: var(--proj-side-w, 400px);
+  display: flex; flex-direction: column;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(34px) saturate(170%);
+  backdrop-filter: blur(34px) saturate(170%);
+  border-left: 1px solid var(--hair);
+  box-shadow: -24px 0 70px rgba(0, 0, 0, 0.30);
+  transform: translateX(0);
+  transition: transform var(--dur) var(--ease);
+  will-change: transform;
+}
+.proj.side-closed .pj-side { transform: translateX(101%); }
+
+/* Backdrop-filter is what makes this glass rather than a grey box; without it
+   the panel must be opaque or the text behind it shows through as noise. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .pj-side { background: color-mix(in srgb, var(--proj-bg) 88%, var(--proj-ink)); }
+}
+
+.pj-grip {
+  position: absolute; left: -3px; top: 0; bottom: 0; width: 7px;
+  cursor: col-resize; z-index: 3;
+}
+.pj-grip:hover { background: var(--glass-2); }
+
+.pj-side-head {
+  flex: none;
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-3) var(--s-3) var(--s-2);
+  border-bottom: 1px solid var(--hair);
+}
+.pj-tabs { display: flex; gap: 2px; flex: 1; min-width: 0; }
+.pj-tab {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 7px 4px;
+  border-radius: var(--r-md);
+  color: var(--proj-ink);
+  opacity: 0.5;
+  font-size: var(--t-tiny);
+  transition: background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.pj-tab:hover { opacity: 0.85; background: var(--glass); }
+.pj-tab[aria-selected="true"] {
+  opacity: 1; background: var(--glass-2);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.pj-tab-icon { display: flex; }
+.pj-tab-icon svg { width: 17px; height: 17px; }
+
+.pj-ib {
+  width: 30px; height: 28px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--proj-ink); opacity: 0.6;
+  transition: background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.pj-ib:hover { opacity: 1; background: var(--glass-2); }
+.pj-ib.on { opacity: 1; background: var(--glass-2); }
+.pj-ib svg { width: 17px; height: 17px; }
+
+.pj-body { flex: 1 1 0; min-height: 0; display: flex; }
+.pj-pane {
+  flex: 1 1 auto; min-height: 0; min-width: 0;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.pj-pane[hidden] { display: none; }
+
+.pj-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.pj-empty {
+  padding: var(--s-6) var(--s-4);
+  text-align: center; font-size: var(--t-small);
+  color: var(--proj-ink); opacity: 0.45; line-height: 1.5;
+}
+.pj-note {
+  padding: var(--s-3) var(--s-4) var(--s-2);
+  font-size: var(--t-tiny); color: var(--proj-ink); opacity: 0.42;
+}
+
+/* --- Lines ---------------------------------------------------------------- */
+.pj-line {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  width: 100%; text-align: left;
+  padding: 9px var(--s-4);
+  color: var(--proj-ink);
+  border-bottom: 1px solid var(--hair);
+  transition: background var(--dur-fast) var(--ease);
+}
+.pj-line:hover { background: var(--glass); }
+.pj-line[aria-current="true"] { background: var(--glass-2); }
+.pj-line[aria-current="true"] .pj-line-gur { opacity: 1; }
+.pj-line[aria-current="true"] .pj-line-n { opacity: 1; font-weight: 700; }
+.pj-line[aria-current="true"] {
+  box-shadow: inset 3px 0 0 var(--proj-ink);
+}
+.pj-line-n {
+  flex: none; width: 2.1em; text-align: right;
+  font-size: var(--t-tiny); font-variant-numeric: tabular-nums;
+  opacity: 0.35;
+}
+.pj-line-gur {
+  flex: 1; min-width: 0;
+  font-size: 1.05rem; line-height: 1.65;
+  opacity: 0.8;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* --- Search --------------------------------------------------------------- */
+.pj-pane-search { display: flex; flex-direction: column; }
+.pj-field {
+  flex: none;
+  display: flex; align-items: center; gap: var(--s-2);
+  margin: var(--s-3);
+  padding: 6px var(--s-2) 6px var(--s-3);
+  background: var(--glass);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+}
+.pj-field:focus-within { border-color: color-mix(in srgb, var(--proj-ink) 45%, transparent); }
+.pj-field-icon { display: flex; opacity: 0.5; }
+.pj-field-icon svg { width: 15px; height: 15px; }
+.pj-field input {
+  flex: 1; min-width: 0;
+  background: none; border: 0; outline: none;
+  color: var(--proj-ink);
+  font-size: var(--t-body);
+}
+.pj-field input::placeholder { color: var(--proj-ink); opacity: 0.4; }
+.pj-field input::-webkit-search-cancel-button { display: none; }
+
+.pj-echo {
+  flex: none;
+  display: flex; align-items: baseline; gap: var(--s-2);
+  padding: 0 var(--s-4) var(--s-2);
+  min-height: 1.9rem;
+}
+.pj-echo .gur {
+  font-size: 1.15rem; letter-spacing: 0.08em;
+  color: var(--proj-ink);
+}
+.pj-echo-a {
+  font-size: var(--t-tiny); opacity: 0.4;
+  font-variant-numeric: tabular-nums;
+}
+.pj-meta {
+  flex: none; padding: 0 var(--s-4) var(--s-2);
+  font-size: var(--t-tiny); opacity: 0.42;
+}
+
+.pj-result {
+  display: block; width: 100%; text-align: left;
+  padding: var(--s-3) var(--s-4);
+  color: var(--proj-ink);
+  border-bottom: 1px solid var(--hair);
+  transition: background var(--dur-fast) var(--ease);
+}
+.pj-result:hover { background: var(--glass); }
+.pj-result[aria-selected="true"] { background: var(--glass-2); }
+.pj-result-gur { font-size: 1.05rem; line-height: 1.7; }
+.pj-result-meta { font-size: var(--t-tiny); opacity: 0.42; margin-top: 2px; }
+
+.pj-progress {
+  height: 3px; margin: var(--s-4);
+  background: var(--glass-2); border-radius: var(--r-full); overflow: hidden;
+}
+.pj-progress-fill {
+  height: 100%; width: 0;
+  background: var(--proj-ink); opacity: 0.7;
+  transition: width 160ms linear;
+}
+
+/* The keyboard is a legend as much as an input: the Gurmukhi shape large, the
+   Latin key that types it small in the corner. */
+.pj-keys {
+  flex: none;
+  padding: var(--s-2) var(--s-2) var(--s-3);
+  border-top: 1px solid var(--hair);
+  background: var(--glass);
+}
+.pj-keys-grid {
+  display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;
+}
+.pj-keys-row { display: flex; gap: 4px; margin-top: 4px; }
+.pj-key {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--glass);
+  border: 1px solid var(--hair);
+  color: var(--proj-ink);
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.pj-key:hover { background: var(--glass-2); }
+.pj-key:active { transform: scale(0.94); }
+.pj-key-g { font-size: 1.15rem; line-height: 1; }
+.pj-key-a {
+  position: absolute; right: 3px; bottom: 1px;
+  font-size: 9px; opacity: 0.42; font-variant-numeric: tabular-nums;
+}
+.pj-key-wide {
+  aspect-ratio: auto; flex: 1; padding: 7px 0;
+}
+.pj-key-wide .pj-key-a { position: static; font-size: var(--t-tiny); opacity: 0.7; }
+
+/* --- Recent ---------------------------------------------------------------- */
+.pj-recent {
+  display: block; width: 100%; text-align: left;
+  padding: var(--s-3) var(--s-4);
+  color: var(--proj-ink);
+  border-bottom: 1px solid var(--hair);
+  transition: background var(--dur-fast) var(--ease);
+}
+.pj-recent:hover { background: var(--glass); }
+.pj-recent-gur {
+  font-size: 1.05rem; line-height: 1.7;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pj-recent-meta { font-size: var(--t-tiny); opacity: 0.42; margin-top: 2px; }
+
+/* --- Look ------------------------------------------------------------------ */
+.pj-pane-look { padding: 0 0 var(--s-6); }
+.pj-group-title {
+  padding: var(--s-4) var(--s-4) var(--s-2);
+  font-size: var(--t-micro); font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  opacity: 0.42;
+}
+.pj-swatches {
+  display: flex; gap: 6px; padding: 0 var(--s-4);
+}
+.pj-swatch {
+  flex: 1; height: 42px;
+  display: grid; place-items: center;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hair);
+  font-size: 1.15rem;
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.pj-swatch:hover { transform: translateY(-1px); }
+.pj-swatch[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--proj-ink);
+}
+.pj-colours { padding: var(--s-3) var(--s-4) 0; display: grid; gap: 6px; }
+.pj-colour-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-3); font-size: var(--t-small);
+}
+.pj-colour {
+  width: 46px; height: 26px; padding: 0;
+  background: none; border: 1px solid var(--hair); border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.pj-colour::-webkit-color-swatch-wrapper { padding: 2px; }
+.pj-colour::-webkit-color-swatch { border: 0; border-radius: 3px; }
+
+.pj-range { padding: var(--s-2) var(--s-4); }
+.pj-range-lab {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: var(--t-small); margin-bottom: 6px;
+}
+.pj-range-v { font-size: var(--t-tiny); opacity: 0.45; }
+.pj-slider {
+  width: 100%; height: 4px; -webkit-appearance: none; appearance: none;
+  background: var(--glass-2); border-radius: var(--r-full); outline: none;
+}
+.pj-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: var(--proj-ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+}
+.pj-slider::-moz-range-thumb {
+  width: 17px; height: 17px; border: 0; border-radius: 50%;
+  background: var(--proj-ink); cursor: grab;
+}
+
+.pj-seg {
+  display: flex; gap: 2px; padding: 2px;
+  background: var(--glass); border-radius: var(--r-md);
+}
+.pj-seg button {
+  flex: 1; padding: 5px 0;
+  border-radius: var(--r-sm);
+  color: var(--proj-ink); opacity: 0.55;
+  font-size: var(--t-small);
+}
+.pj-seg button[aria-pressed="true"] {
+  opacity: 1; background: var(--glass-2);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+.pj-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; gap: var(--s-3);
+  padding: 9px var(--s-4);
+  color: var(--proj-ink);
+  font-size: var(--t-small);
+  transition: background var(--dur-fast) var(--ease);
+}
+.pj-toggle:hover { background: var(--glass); }
+.pj-switch {
+  flex: none; position: relative;
+  width: 36px; height: 21px; border-radius: var(--r-full);
+  background: var(--glass-2);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  transition: background var(--dur-fast) var(--ease);
+}
+.pj-switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--proj-ink); opacity: 0.55;
+  transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.pj-toggle[aria-checked="true"] .pj-switch::after {
+  transform: translateX(15px); opacity: 1;
+}
+
+.pj-keyrow {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-3);
+  padding: 6px var(--s-4);
+  font-size: var(--t-small); opacity: 0.7;
+}
+.pj-kbd {
+  flex: none;
+  padding: 2px 7px; border-radius: var(--r-sm);
+  background: var(--glass-2);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-size: var(--t-tiny); font-variant-numeric: tabular-nums;
+}
+
+/* --- the two things that live outside the panel ---------------------------- */
+.pj-handle {
+  position: absolute; top: 50%; right: 0;
+  transform: translateY(-50%);
+  width: 34px; height: 74px;
+  display: none; align-items: center; justify-content: center;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
+  border: 1px solid var(--hair); border-right: 0;
+  color: var(--proj-ink);
+  opacity: 0; z-index: 4;
+  transition: opacity var(--dur) var(--ease), background var(--dur-fast) var(--ease);
+}
+.proj.side-closed .pj-handle { display: flex; }
+.proj.side-closed.live .pj-handle { opacity: 0.75; }
+.pj-handle:hover { opacity: 1 !important; background: var(--glass-2); }
+.pj-handle svg { width: 16px; height: 16px; }
+
+.pj-bar {
+  position: absolute; left: var(--s-5); bottom: var(--s-5); z-index: 4;
+  display: flex; align-items: center; gap: 2px;
+  padding: 3px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-full);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  pointer-events: none;
+}
+.proj.live .pj-bar { opacity: 1; transform: none; pointer-events: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pj-side, .pj-stage, .pj-bar, .pj-handle { transition: none; }
+}

@@ -12,27 +12,17 @@
 import { el, clear, iconBtn, toast, contextMenu } from "../ui.js";
 import { Icons } from "../icons.js";
 import { store } from "../store.js";
-import { getBani, getShabad, toLarivaar } from "../data.js";
-import { BANI_INFO } from "../banis-info.js";
+import { toLarivaar } from "../data.js";
+import { identifyingLine, loadRecord, nameLine } from "../record.js";
 
-const isHeading = (t = "") => /ਮਹਲਾ|ਮਃ/.test(t) && t.length < 40;
-
-/* The bani record's id key depends on where it came from: the local API
- * returns the database column `bani_id`, while BaniDB's own payload calls it
- * `baniID`. Accept either, or the curated name silently never matches and the
- * reader falls back to the raw transliteration. */
-const baniEnglish = (info) => {
-  const id = info.bani_id ?? info.baniID;
-  return (BANI_INFO[id] && BANI_INFO[id].name) || info.english || "Bani";
-};
-
-export function readerPane({ onSaveChanged, onToggleList, onImmersive }) {
+export function readerPane({ onSaveChanged, onToggleList, onImmersive, onProject }) {
   const root = el("div.pane.reader-pane");
 
   const where = el("div.reader-where", { text: "" });
   const saveBtn = iconBtn("bookmark", "Save this shabad", () => toggleSaveWhole());
   const autoBtn = iconBtn("play", "Auto-scroll", () => toggleAuto());
   const listBtn = iconBtn("list", "Show or hide the list", () => onToggleList?.());
+  const projBtn = iconBtn("projector", "Projector mode  ·  P", () => onProject?.());
   const immBtn = iconBtn("arrowsOut", "Immersive reading  ·  F", () => onImmersive?.());
   const bar = el("div.reader-bar", {}, [
     listBtn,
@@ -40,6 +30,7 @@ export function readerPane({ onSaveChanged, onToggleList, onImmersive }) {
     el("div.spacer"),
     autoBtn,
     saveBtn,
+    projBtn,
     immBtn,
   ]);
 
@@ -74,13 +65,17 @@ export function readerPane({ onSaveChanged, onToggleList, onImmersive }) {
       el("div", { html: Icons.book }), el("h3", { text: "Opening…" }),
     ]));
 
-    record = type === "bani"
-      ? normaliseBani(await getBani(id))
-      : normaliseShabad(await getShabad(id));
+    record = await loadRecord({ type, id });
 
     where.textContent = record.title;
     immTitle.textContent = record.title;
     store.set("lastRead", { type, id, title: record.title, at: Date.now() });
+    store.pushHistory({
+      type, id, title: record.title,
+      subtitle: record.subtitle || null,
+      gurmukhi: record.gurTitle || nameLine(record),
+      focusLine,
+    });
     render();
     updateSaveBtn();
     setTimeout(() => { reveal(); restore(); }, 60);
@@ -210,10 +205,12 @@ export function readerPane({ onSaveChanged, onToggleList, onImmersive }) {
 
   function toggleSaveWhole() {
     if (!record) return;
+    /* Save it by the line the reader arrived at, if they arrived at one -
+       otherwise by the line that identifies the record. Never by line zero,
+       which for a shabad is the raag heading. */
     const ref =
       (focusLine != null && record.lines.find((l) => l.key === focusLine)) ||
-      record.lines.find((l) => !l.isHeader && !isHeading(l.gurmukhi)) ||
-      record.lines[0];
+      identifyingLine(record);
     const now = store.toggleSaved({
       id: `${type}:${id}`, type, refId: id, verseId: ref?.key ?? null,
       title: record.gurTitle || record.title,
@@ -335,41 +332,9 @@ export function readerPane({ onSaveChanged, onToggleList, onImmersive }) {
     setImmersiveTitle: (t) => { immTitle.textContent = t; },
     title: () => record?.title || "",
     isOpen: () => record != null,
+    current: () => (record ? { type, id, focusLine } : null),
     toggleAuto, toggleSaveWhole,
     scrollBy: (dy) => { scroller.scrollTop += dy; },
     refreshStars: () => { if (record) { const y = scroller.scrollTop; render(); scroller.scrollTop = y; updateSaveBtn(); } },
-  };
-}
-
-/* ------------------------------------------------------------ shaping --- */
-function normaliseBani(d) {
-  const info = d.bani || {};
-  return {
-    title: baniEnglish(info),
-    gurTitle: info.unicode || null,
-    subtitle: baniEnglish(info) || null,
-    lines: (d.verses || []).map((v, i) => ({
-      key: v.seq != null ? v.seq : i,
-      gurmukhi: v.gurmukhi, translit: v.translit_en,
-      en: v.translation_en, enAlt: null, pa: v.translation_pu,
-      isHeader: !!v.is_header,
-    })),
-  };
-}
-
-function normaliseShabad(d) {
-  const s = d.shabad || {};
-  return {
-    title: s.page_no ? `Ang ${s.page_no}` : "Shabad",
-    gurTitle: null,
-    subtitle: [s.writer, s.raag].filter(Boolean).join(" · ") || null,
-    lines: (d.verses || []).map((v) => {
-      const t = v.translation || {};
-      return {
-        key: v.verse_id, gurmukhi: v.gurmukhi, translit: v.translit_en,
-        en: t.en?.bdb || t.en?.ssk || null, enAlt: t.en?.ms || null,
-        pa: t.pu?.ss || null, isHeader: false,
-      };
-    }),
   };
 }

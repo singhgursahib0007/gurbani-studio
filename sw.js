@@ -21,7 +21,7 @@
  * and the old one is deleted on activate.
  */
 
-const BUILD = "20260906-060226";
+const BUILD = "20260907-163042";
 const CACHE = `gurbani-studio-${BUILD}`;
 
 /* Paths are relative so this works both at the site root and under a
@@ -33,9 +33,11 @@ const SHELL = [
   "./css/shell.css",
   "./css/controls.css",
   "./css/reader.css",
+  "./css/projector.css",
   "./js/main.js",
   "./js/store.js",
   "./js/data.js",
+  "./js/record.js",
   "./js/ui.js",
   "./js/icons.js",
   "./js/gurmukhi.js",
@@ -44,6 +46,7 @@ const SHELL = [
   "./js/views/list.js",
   "./js/views/reader.js",
   "./js/views/settings.js",
+  "./js/views/projector.js",
   "./fonts/SantLipi.woff2",
   "./icon.svg",
   "./khanda.svg",

@@ -43,14 +43,39 @@ export const DEFAULTS = Object.freeze({
   /* reading */
   autoScrollSpeed: 30,
 
+  /* projector — deliberately its own set of preferences.
+   * A hall wants larger type, fewer streams under each line and a different
+   * background from a desk; sharing the reader's settings would mean redoing
+   * them every time you plugged in a projector. */
+  projPreset: "black",
+  projBg: "#000000",
+  projInk: "#FFFFFF",
+  projScale: 1,              // fraction of the stage the text may fill
+  projAlign: "center",
+  projTranslit: true,
+  projEn: true,
+  projPa: false,
+  projLarivaar: false,
+  projCaption: true,         // the small "Ang 917 · 12 of 40" line
+  projSideOpen: true,
+  projSideWidth: 400,
+  projTab: "lines",
+  projKeyboard: true,
+
   /* collections */
   favourites: [],
   saved: [],
   lastRead: null,
+  history: [],
   progress: {},
   baniSort: "category",
   searchMode: "anywhere",
 });
+
+/* How long a shabad stays in Recent. Long enough to cover a diwan and the
+ * drive home; short enough that it is a working set, not an archive. */
+export const HISTORY_MS = 24 * 60 * 60 * 1000;
+const HISTORY_MAX = 40;
 
 let state = load();
 const listeners = new Set();
@@ -108,6 +133,29 @@ export const store = {
     return !exists;
   },
 
+  /* --- history ----------------------------------------------------------
+   * What was opened in the last 24 hours, newest first, one entry per shabad.
+   * Re-opening something moves it to the top rather than adding a duplicate,
+   * because during a diwan the same shabad often comes back.
+   */
+  pushHistory(entry) {
+    const key = `${entry.type}:${entry.id}`;
+    const now = Date.now();
+    const next = [
+      { ...entry, key, at: now },
+      ...(state.history || []).filter(
+        (h) => h.key !== key && now - (h.at || 0) < HISTORY_MS),
+    ].slice(0, HISTORY_MAX);
+    this.set("history", next);
+  },
+
+  recentHistory() {
+    const now = Date.now();
+    return (state.history || []).filter((h) => now - (h.at || 0) < HISTORY_MS);
+  },
+
+  clearHistory() { this.set("history", []); },
+
   /* --- reading position -------------------------------------------------
    * Stored as the index of the topmost visible line, never a pixel offset:
    * pixels stop meaning anything the moment type size, the measure or a
@@ -128,9 +176,10 @@ export const store = {
 
   /* --- resets ------------------------------------------------------------ */
   resetAppearance() {
-    const keep = (({ favourites, saved, lastRead, progress,
+    const keep = (({ favourites, saved, lastRead, history, progress,
                      sidebarWidth, listWidth }) =>
-      ({ favourites, saved, lastRead, progress, sidebarWidth, listWidth }))(state);
+      ({ favourites, saved, lastRead, history, progress,
+         sidebarWidth, listWidth }))(state);
     state = { ...DEFAULTS, ...keep };
     persist();
     emit("*");
@@ -171,6 +220,33 @@ export const THEMES = [
   { value: "dark",  label: "Dark",  bg: "#0C1524", fg: "#EEF3FA" },
   { value: "night", label: "Night", bg: "#000000", fg: "#C8D2E0" },
 ];
+
+/* Projector palettes.
+ *
+ * Not the reader's themes. A projector is a lamp: what looks like a rich navy
+ * on a monitor washes out on a screen three metres wide, and white-on-black
+ * carries to the back of a hall in a way nothing else does. These are picked
+ * for that room, and any of them can be overridden per colour. */
+export const PROJ_PRESETS = [
+  { id: "black", label: "Black",  bg: "#000000", ink: "#FFFFFF" },
+  { id: "navy",  label: "Navy",   bg: "#0A1428", ink: "#F4E6C0" },
+  { id: "ink",   label: "Ink",    bg: "#10131A", ink: "#EFC96E" },
+  { id: "paper", label: "Paper",  bg: "#FFFFFF", ink: "#12294B" },
+  { id: "sepia", label: "Sepia",  bg: "#F6ECD8", ink: "#3B2E1B" },
+];
+
+/* Is a colour dark enough to want light furniture on top of it? Relative
+ * luminance, so it holds for the custom colours too and not just the presets. */
+export function isDarkColour(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ""));
+  if (!m) return true;
+  const n = parseInt(m[1], 16);
+  const lin = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const L = 0.2126 * lin(((n >> 16) & 255) / 255)
+          + 0.7152 * lin(((n >> 8) & 255) / 255)
+          + 0.0722 * lin((n & 255) / 255);
+  return L < 0.4;
+}
 
 export const resolveTheme = (pref = state.theme) =>
   pref !== "auto" ? pref : (media.matches ? "dark" : "light");

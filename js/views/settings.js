@@ -110,6 +110,23 @@ export function openSettings(anchor) {
       [`${MOD}J`, "Start or stop auto-scroll"],
       [`${MOD}S`, "Save what you are reading"],
       [`${MOD}P`, "Command palette"],
+      ["F", "Immersive reading"],
+      ["P", "Projector mode"],
+    ].forEach(([k, what]) => pop.append(el("button.pop-item", {}, [
+      el("div", { style: { flex: "1" } }, [el("div", { text: what })]),
+      el("span.kbd", { text: k }),
+    ])));
+
+    /* The projector has its own keys, and they are worth knowing before you
+       are standing in front of a sangat trying to remember them. */
+    pop.append(el("div.pop-sep"), el("div.pop-title", { text: "While projecting" }));
+    [
+      ["→ ␣ ⇟", "Next line"],
+      ["← ⇞", "Previous line"],
+      ["B", "Blank the screen"],
+      ["S", "Show or hide the panel"],
+      ["1 – 4", "Lines · Search · Recent · Look"],
+      ["Esc", "Leave projector"],
     ].forEach(([k, what]) => pop.append(el("button.pop-item", {}, [
       el("div", { style: { flex: "1" } }, [el("div", { text: what })]),
       el("span.kbd", { text: k }),
