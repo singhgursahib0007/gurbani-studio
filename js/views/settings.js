@@ -123,9 +123,9 @@ export function openSettings(anchor) {
     [
       ["→ ␣ ⇟", "Next line"],
       ["← ⇞", "Previous line"],
-      ["B", "Blank the screen"],
+      ["B", "Blank the screen — ਵਾਹਿਗੁਰੂ"],
       ["S", "Show or hide the panel"],
-      ["1 – 4", "Lines · Search · Recent · Look"],
+      ["1 – 5", "Lines · Banis · Search · Recent · Look"],
       ["Esc", "Leave projector"],
     ].forEach(([k, what]) => pop.append(el("button.pop-item", {}, [
       el("div", { style: { flex: "1" } }, [el("div", { text: what })]),

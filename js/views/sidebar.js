@@ -12,7 +12,7 @@ import { store } from "../store.js";
 import { getMeta } from "../data.js";
 import { GROUPS, baniGroup } from "../banis-info.js";
 
-export function sidebar({ onSelect, onSettings, onAppearance }) {
+export function sidebar({ onSelect, onSettings, onAppearance, onProject }) {
   const root = el("div.pane.sidebar");
   const scroll = el("div.scroll");
   let counts = {}, current = "banis:";
@@ -55,9 +55,31 @@ export function sidebar({ onSelect, onSettings, onAppearance }) {
     ].filter(Boolean));
   }
 
+  /* Projector sits above everything, on its own, in gold.
+   *
+   * It is not another place to go - it is the one control that hands the
+   * whole screen to a hall, so it should not be a peer of Search and Saved in
+   * a list of destinations. Gold is the accent this app reserves for the
+   * thing that matters most on screen, and there is only ever one of these.
+   */
+  function projectButton() {
+    return el("button.side-project", {
+      title: `Projector mode  ·  P`,
+      onclick: () => onProject?.(),
+    }, [
+      el("span.side-project-icon", { html: Icons.projector }),
+      el("span.side-project-label", {}, [
+        el("span.t", { text: "Projector" }),
+        el("span.s", { text: "Present to a hall" }),
+      ]),
+      el("span.side-project-key", { text: "P" }),
+    ]);
+  }
+
   function render() {
     clear(scroll);
     scroll.append(
+      projectButton(),
       el("div.side-section", { text: "Find" }),
       item("search", "Search", "search"),
       item("saved", "Saved", "bookmark", store.get("saved").length || null),
