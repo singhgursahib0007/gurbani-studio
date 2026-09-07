@@ -1,0 +1,8 @@
+# Only the built site is deployed. The harness, the docs and the 394 MB
+# database have no business on a static host.
+harness/
+docs/
+data/
+.git/
+*.md
+__pycache__/

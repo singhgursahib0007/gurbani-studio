@@ -23,6 +23,32 @@ git -C /tmp/ghp push origin gh-pages
 git worktree remove /tmp/ghp
 ```
 
+## Vercel
+
+The same build, a second host, and a shorter address:
+**[gurbani-studio.vercel.app](https://gurbani-studio.vercel.app)**.
+
+```bash
+python3 -m harness static
+vercel deploy site --prod --archive=tgz
+```
+
+**`--archive=tgz` is not optional.** The build is 13,392 files, and the free
+tier stops at 5,000 individual file uploads per 24 hours — the first attempt
+died a third of the way through with `api-upload-free`. The flag sends one
+tarball instead of thirteen thousand PUTs, which is both allowed and far
+faster. Anything that ships a JSON file per shabad will hit this.
+
+`vercel.json` sets a year-long immutable cache on `/data` and `/fonts` (their
+contents only change when the corpus is rebuilt) and no-cache on `sw.js` (a
+cached service worker cannot ship its own replacement). It is written into
+`site/` by the static build rather than kept beside it, because the build
+directory is what gets uploaded. GitHub Pages ignores the file entirely, so
+one build serves both hosts.
+
+The project link lives in `site/.vercel/`, which is gitignored along with the
+rest of `site/` and survives a rebuild.
+
 ## What a visit costs
 
 The CDN gzips text, so these are wire sizes:

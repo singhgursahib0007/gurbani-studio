@@ -3,7 +3,9 @@
 A desktop Gurbani reader and search workspace, built from the open data behind
 [SikhiToTheMax](https://www.sikhitothemax.org).
 
-**→ [singhgursahib0007.github.io/gurbani-studio](https://singhgursahib0007.github.io/gurbani-studio/)**
+**→ [gurbani-studio.vercel.app](https://gurbani-studio.vercel.app)**
+&nbsp;·&nbsp; also at
+[singhgursahib0007.github.io/gurbani-studio](https://singhgursahib0007.github.io/gurbani-studio/)
 
 Three panes, driven from the keyboard, and it works offline. No account, no
 tracking, no third-party JavaScript.

@@ -115,6 +115,14 @@ def build_static(out_dir: Path | None = None, include_text: bool = True,
     for single in ("icon.svg", "khanda.svg", "manifest.webmanifest"):
         shutil.copy2(config.ROOT / "app" / single, out / single)
 
+    # Host configuration travels with the build rather than being applied by
+    # hand after it. GitHub Pages ignores this file; Vercel reads it for the
+    # cache headers, and the build is where it has to live because that is
+    # what gets uploaded.
+    vercel = config.ROOT / "vercel.json"
+    if vercel.exists():
+        shutil.copy2(vercel, out / "vercel.json")
+
     # The service worker carries a build stamp, so a new deployment lands in a
     # fresh cache and the previous one is dropped on activate.
     build_id = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
