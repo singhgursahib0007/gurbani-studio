@@ -13,6 +13,7 @@ import { sidebar } from "./views/sidebar.js";
 import { listPane } from "./views/list.js";
 import { readerPane } from "./views/reader.js";
 import { openAppearance, openSettings } from "./views/settings.js";
+import { projectorView } from "./views/projector.js";
 
 applyTheme();
 applyVars();
@@ -23,6 +24,7 @@ const reader = readerPane({
   onSaveChanged: () => list.refresh(),
   onToggleList: () => toggleList(),
   onImmersive: () => toggleImmersive(),
+  onProject: () => startProjector(),
 });
 const list = listPane({
   onOpen: (what) => reader.open(what),
@@ -37,6 +39,21 @@ const side = sidebar({
   onSettings: openSettings,
   onAppearance: openAppearance,
 });
+
+/* Projector mode is a sibling of the shell rather than a state of it: the
+   three panes keep everything they had, and come back untouched. */
+const projector = projectorView({
+  onExit: (what) => {
+    // Whatever was moved to while presenting is what the reader should show.
+    if (what && (!reader.current() || reader.current().id !== what.id ||
+                 reader.current().type !== what.type)) reader.open(what);
+  },
+});
+document.body.append(projector.root);
+
+function startProjector() {
+  projector.enter(reader.current() || store.get("lastRead") || null);
+}
 
 const d1 = el("div.divider.d1", { role: "separator", "aria-label": "Resize sidebar" });
 const d2 = el("div.divider.d2", { role: "separator", "aria-label": "Resize list" });
@@ -145,6 +162,10 @@ reader.controls.append(
 );
 
 document.addEventListener("keydown", (e) => {
+  // While projecting, the projector owns every key. It has its own full set,
+  // and a stray ⌘L collapsing a pane nobody can see would be a mystery.
+  if (projector.isOn()) { projector.handleKey(e); return; }
+
   const mod = e.metaKey || e.ctrlKey;
   const typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
 
@@ -155,6 +176,9 @@ document.addEventListener("keydown", (e) => {
   if (mod && e.key.toLowerCase() === "l") { e.preventDefault(); toggleList(); return; }
   if (mod && e.shiftKey && e.key.toLowerCase() === "f") {
     e.preventDefault(); toggleImmersive(); return;
+  }
+  if (mod && e.shiftKey && e.key.toLowerCase() === "p") {
+    e.preventDefault(); startProjector(); return;
   }
   if (mod && e.key === "\\") { e.preventDefault(); toggleFocus(); return; }
   if (mod && e.key.toLowerCase() === "p") { e.preventDefault(); palette(); return; }
@@ -171,6 +195,7 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "Enter") { e.preventDefault(); list.openSelected(); }
   else if (e.key === " ") { e.preventDefault(); reader.scrollBy(innerHeight * 0.8); }
   else if (e.key === "f") { e.preventDefault(); toggleImmersive(); }
+  else if (e.key === "p") { e.preventDefault(); startProjector(); }
   else if (e.key === "Escape") {
     if (isImmersive()) exitImmersive();
     else if (app.classList.contains("focus-mode")) toggleFocus();
@@ -189,6 +214,7 @@ function palette() {
     { t: "Toggle sidebar", s: `${MOD}B`, run: toggleSidebar },
     { t: "Toggle list", s: `${MOD}L`, run: toggleList },
     { t: "Immersive reading", s: "F", run: toggleImmersive },
+    { t: "Projector mode", s: "P", run: startProjector },
     { t: "Focus mode", s: `${MOD}\\`, run: toggleFocus },
     { t: "Auto-scroll", s: `${MOD}J`, run: () => reader.toggleAuto() },
     { t: "Save what I am reading", s: `${MOD}S`, run: () => reader.toggleSaveWhole() },

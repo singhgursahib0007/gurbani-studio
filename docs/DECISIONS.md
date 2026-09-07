@@ -155,3 +155,31 @@ by computing contrast ratios.
 second time, from the other encoding, by different code; the two must agree on
 all 142,403 lines. That check is what would catch a subtle regression in
 either path, and neither path validates itself.
+
+## Projector mode
+
+**Awaiting `requestFullscreen()` can hang forever.** `enter()` awaited it
+before drawing the first slide. Inside an embedded browser view the promise
+neither resolves nor rejects, so the glass panel appeared and the stage stayed
+blank — with no error anywhere, because nothing threw. Full screen is now
+requested and not awaited. *Anything on the far side of an `await` is only as
+reliable as the promise in front of it, and a permission-gated browser API is
+not a reliable promise.*
+
+**An absolutely positioned child measures against the padding box.** The
+type-fitting works by laying out a hidden twin of the slide and binary
+searching its size. The twin used `left: 0; right: 0`, which resolves against
+the container's padding box — wider than the content box the real slide gets.
+Every size it approved overflowed the bottom of the screen. Its width is now
+set from JS to the measured content width.
+
+**`.gur` carries the app theme's colour into a mode that is not the app.**
+`.gur { color: var(--gurbani) }` is right everywhere else and wrong here: the
+presenter picks the projector's two colours themselves, so near-white Gurmukhi
+appeared on the white Paper background. `.proj .gur { color: inherit }`.
+
+**Line zero is the raag heading, again.** Recent listed its first entry as
+`ਧਨਾਸਰੀ ਮਹਲਾ ੫ ॥` — the heading that sits above hundreds of shabads and so
+identifies none of them. The same defect Saved had on the phone, in a new
+place, which is why the fix this time is a shared `nameLine()` in `record.js`
+rather than a third copy of the same guard.

@@ -1,6 +1,6 @@
 # Documentation
 
-Seven documents. Each covers one thing, and they link to each other where the
+Eight documents. Each covers one thing, and they link to each other where the
 subjects meet.
 
 ## Start here
@@ -14,6 +14,7 @@ Read this first; the rest assume it.
 | I want to… | Read |
 |---|---|
 | Understand the interface, or change it | **[DESKTOP](DESKTOP.md)** |
+| Present to a hall, or change how that works | **[PROJECTOR](PROJECTOR.md)** |
 | Query the corpus, or add a field | **[DATASET](DATASET.md)** |
 | Change how data is fetched or built | **[HARNESS](HARNESS.md)** |
 | Touch anything to do with search or Gurmukhi | **[GURMUKHI](GURMUKHI.md)** |
@@ -35,6 +36,11 @@ for, a panel that closed when you tried to drag a slider in it.
 
 **[DESKTOP](DESKTOP.md)** — three panes, the keyboard, immersive reading, and
 what is deliberately different from the phone app.
+
+**[PROJECTOR](PROJECTOR.md)** — one line, the whole screen, a glass panel that
+slides away. Why the type is fitted per shabad rather than per line, why the
+colours are not the app's themes, and why leaving full screen does not leave
+the mode.
 
 **[DATASET](DATASET.md)** — every table and field of `gurbani.sqlite`, the
 eleven translation streams and who made them, and the upstream quirks kept on

@@ -4,6 +4,7 @@ Designed for a pointer, a keyboard and a large screen — not a phone layout
 given more room.
 
 Related: [ARCHITECTURE](ARCHITECTURE.md) for the system around it ·
+[PROJECTOR](PROJECTOR.md) for presenting to a hall ·
 [GURMUKHI](GURMUKHI.md) for what the keyboard is actually typing ·
 [DECISIONS](DECISIONS.md) for the bugs behind several of these choices ·
 [DEPLOY](DEPLOY.md) for publishing it.
@@ -48,6 +49,7 @@ would just be the phone app in a bigger window.
 | `⌘B` | Show or hide the sidebar |
 | `⌘L` | Show or hide the list |
 | `F` or `⌘⇧F` | Immersive reading |
+| `P` or `⌘⇧P` | [Projector mode](PROJECTOR.md) |
 | `⌘\` | Focus mode — both left panes away |
 | `⌘J` | Start or stop auto-scroll |
 | `⌘S` | Save what you are reading |
@@ -80,6 +82,21 @@ own setting if they chose a wider one.
 Leaving works either way round: `Esc`, the control, or the browser's own
 full-screen exit. The `fullscreenchange` event is the single source of truth,
 so the app can never be left collapsed with no way back.
+
+## Projector mode
+
+`P` hands the screen to a hall: one line at a time, as large as the shabad
+allows, driven like a slideshow. It is a mode rather than a view — a fixed
+overlay that is a sibling of the shell, so the three panes keep everything
+they had and come back untouched.
+
+It has its own document: **[PROJECTOR](PROJECTOR.md)**.
+
+The short version: a glass panel on the right slides away with `S`; its four
+tabs are the lines of what is open, first-letter search with the Gurmukhi
+keyboard, the last 24 hours, and the colours; `→` `Space` `⇟` advance and
+`←` `⇞` go back, because that is what a presentation clicker sends; `B` blanks
+the screen.
 
 ## Collapsing panes
 
@@ -117,6 +134,7 @@ identically.
 | On-screen keyboard is the input | Physical keyboard is the input; on-screen is a legend |
 | One screen at a time | List and reader side by side |
 | Full-width text | Measured, centred column |
+| — | [Projector mode](PROJECTOR.md) for a hall |
 
 ## Traps worth knowing
 
