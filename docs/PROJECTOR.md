@@ -134,7 +134,7 @@ up rather than adding a duplicate, because the same shabad comes back.
 
 **Look** — five palettes chosen for a lamp rather than a monitor, plus a
 colour picker for each of the two colours; the **Gurmukhi font** (Sant Lipi by
-default, or Mukta Mahee, Noto Sans or Anek — each tile set in the face it
+default, or Mukta Mahee, Noto Sans or the calligraphic Tiro — each tile set in the face it
 names); **weight** (regular, medium, bold — a heavier face carries further
 through a lamp than a larger light one); **a size for each kind of text**;
 alignment; and toggles for transliteration, English, Punjabi, larivaar and the

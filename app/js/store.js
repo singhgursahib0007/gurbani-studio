@@ -211,8 +211,16 @@ export const FONTS = [
   { value: "Sant Lipi", label: "Sant Lipi", note: "Built for Gurbani" },
   { value: "Mukta Mahee", label: "Mukta Mahee", note: "Even and modern" },
   { value: "Noto Sans Gurmukhi", label: "Noto Sans", note: "Wide and plain" },
-  { value: "Anek Gurmukhi", label: "Anek", note: "Compact" },
+  { value: "Tiro Gurmukhi", label: "Tiro", note: "Traditional, calligraphic" },
 ];
+/* A face that has since been removed from the list (Anek, replaced by Tiro)
+ * must not survive as a saved choice: its file is gone, and the text would
+ * silently fall back to whatever the system has. Checked here rather than in
+ * load(), which runs before FONTS exists. */
+for (const k of ["gurFont", "projFont"]) {
+  if (!FONTS.some((f) => f.value === state[k])) state = { ...state, [k]: DEFAULTS[k] };
+}
+
 export const WEIGHTS = [
   { value: 400, label: "Regular" },
   { value: 500, label: "Medium" },

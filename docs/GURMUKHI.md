@@ -119,9 +119,15 @@ and a detached hook, and it places aunkar, dulainkar and tippi without
 crowding them at reading sizes. It is variable, so weight is real rather than
 synthesised, and it is 28 KB.
 
-Mukta Mahee, Noto Sans Gurmukhi and Anek Gurmukhi are offered as alternatives.
-Each is its own `@font-face` family, so a browser downloads only the one in
-use — picking a font costs 12–33 KB, picking none costs nothing.
+Mukta Mahee, Noto Sans Gurmukhi and **Tiro Gurmukhi** are offered as
+alternatives. Tiro, by Tiro Typeworks, is the decorative one — a traditional
+book face with a calligraphic stroke — and replaced Anek, which was a fourth
+plain sans and so not much of a choice. It has a single weight, so Medium and
+Bold are synthesised for it. Each face is its own `@font-face` family, so a
+browser downloads only the one in use — picking a font costs 12–33 KB,
+picking none costs nothing. A saved choice of a face that has since been
+removed falls back to Sant Lipi on load rather than to whatever the system
+has.
 
 ## Two traps worth knowing
 

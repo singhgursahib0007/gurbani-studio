@@ -32,12 +32,14 @@
   font-weight: 100 900; font-display: swap;
   unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
 }
+/* Tiro Gurmukhi - Tiro Typeworks, OFL. A traditional book face with a
+   calligraphic stroke: the decorative choice, where the other three are
+   plain. One weight only, so Medium and Bold are synthesised for it. */
 @font-face {
-  font-family: "Anek Gurmukhi";
-  src: url("../fonts/AnekGurmukhi.woff2") format("woff2-variations"),
-       url("../fonts/AnekGurmukhi.woff2") format("woff2");
-  font-weight: 100 900; font-display: swap;
-  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC;
+  font-family: "Tiro Gurmukhi";
+  src: url("../fonts/TiroGurmukhi.woff2") format("woff2");
+  font-weight: 400; font-display: swap;
+  unicode-range: U+0A00-0A7F, U+0964-0965, U+200C-200D, U+25CC, U+262C;
 }
 
 .gur {
