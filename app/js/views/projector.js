@@ -26,7 +26,7 @@
 
 import { el, clear, iconBtn } from "../ui.js";
 import { Icons } from "../icons.js";
-import { store, PROJ_PRESETS, WEIGHTS, isDarkColour } from "../store.js";
+import { store, PROJ_PRESETS, WEIGHTS, FONTS, isDarkColour } from "../store.js";
 import { loadRecord, nameLine } from "../record.js";
 import { toLarivaar, search as runSearch, loadIndex, indexReady, getMeta } from "../data.js";
 import { baniName } from "../banis-info.js";
@@ -42,7 +42,9 @@ const TABS = [
 ];
 
 export function projectorView({ onExit } = {}) {
-  const root = el("div.proj", { hidden: true, "aria-hidden": "true" });
+  /* tabindex -1: not in the Tab order, but able to hold focus. The slideshow
+     needs somewhere to put the keyboard that is not a text field. */
+  const root = el("div.proj", { hidden: true, "aria-hidden": "true", tabindex: "-1" });
 
   /* --- stage ------------------------------------------------------------- */
   const slideGur = el("div.pj-gur.gur");
@@ -75,19 +77,22 @@ export function projectorView({ onExit } = {}) {
   const body = el("div.pj-body");
   const grip = el("div.pj-grip", { role: "separator", "aria-label": "Resize panel" });
 
-  const collapseBtn = iconBtn("caretsRight", "Hide the panel  ·  S",
-                              () => setSide(false), "pj-ib");
   const side = el("aside.pj-side", { "aria-label": "Projector controls" }, [
     grip,
-    el("div.pj-side-head", {}, [
-      tabStrip,
-      collapseBtn,
-    ]),
+    el("div.pj-side-head", {}, [tabStrip]),
     body,
   ]);
 
-  const handle = iconBtn("caretsLeft", "Show the panel  ·  S", () => setSide(true),
-                         "pj-handle");
+  /* One control for the panel, in one place.
+   *
+   * There used to be two: a » in the panel's header to hide it, and a tab on
+   * the screen edge to bring it back - different buttons, different places,
+   * and it read as two things fighting over one job. Now there is a single
+   * pull-tab at mid-height that rides on the panel's left edge and travels
+   * with it, so the way out is exactly where the way back in will be. */
+  const sideToggle = iconBtn("caretsRight", "Hide the panel  ·  S",
+                         () => setSide(root.classList.contains("side-closed")),
+                         "pj-pull");
 
   /* --- the bar that is only there when the pointer moves ------------------ */
   const bar = el("div.pj-bar", {}, [
@@ -97,7 +102,7 @@ export function projectorView({ onExit } = {}) {
     iconBtn("xmark", "Leave projector  ·  Esc", () => exit(), "pj-ib"),
   ]);
 
-  root.append(stage, blankWord, side, handle, bar);
+  root.append(stage, blankWord, side, sideToggle, bar);
 
   /* --- state -------------------------------------------------------------- */
   let on = false;
@@ -204,6 +209,20 @@ export function projectorView({ onExit } = {}) {
     node.hidden = !text;
   };
 
+  /**
+   * Give the keyboard back to the slideshow.
+   *
+   * Picking something from the panel is the moment the operator's attention
+   * moves back to the screen - so that is the moment →, Space and the
+   * clicker must work again. Without this, focus stayed in the search field
+   * after a pick, and every arrow moved a text caret nobody could see.
+   */
+  function handBack() {
+    const a = document.activeElement;
+    if (a && a !== root && root.contains(a)) a.blur?.();
+    if (on) root.focus({ preventScroll: true });
+  }
+
   function step(d) {
     if (!record) return;
     const next = at + d;
@@ -276,7 +295,16 @@ export function projectorView({ onExit } = {}) {
   /* ====================================================================== */
 
   function setSide(open, { silent } = {}) {
+    // Out of the panel BEFORE it becomes inert. Browsers disagree about what
+    // happens to focus inside a subtree that turns inert - Chrome moves it to
+    // the body, Safari can leave it where it was - and "where it was" is a
+    // hidden search field that then eats every arrow key. Do not leave it to
+    // the browser.
+    if (!open) handBack();
     root.classList.toggle("side-closed", !open);
+    sideToggle.innerHTML = open ? Icons.caretsRight : Icons.caretsLeft;
+    sideToggle.setAttribute("aria-label", open ? "Hide the panel  ·  S" : "Show the panel  ·  S");
+    sideToggle.title = sideToggle.getAttribute("aria-label");
     /* Moved off screen by a transform, the panel is still in the layout and
        still focusable. `inert` is what actually takes it out of reach, so
        nothing inside it can pull itself back into view. */
@@ -326,7 +354,7 @@ export function projectorView({ onExit } = {}) {
       linesList.append(el("button.pj-line", {
         dataset: { i: String(i) },
         "aria-current": "false",
-        onclick: () => { showLine(i); },
+        onclick: () => { showLine(i); handBack(); },
       }, [
         el("span.pj-line-n", { text: String(i + 1) }),
         el("span.pj-line-gur.gur", { text: line.gurmukhi }),
@@ -383,7 +411,7 @@ export function projectorView({ onExit } = {}) {
     }
     shown.forEach((b) => {
       baniList.append(el("button.pj-recent", {
-        onclick: () => open({ type: "bani", id: b.bani_id }),
+        onclick: () => { open({ type: "bani", id: b.bani_id }); handBack(); },
       }, [
         el("div.pj-recent-gur.gur", { text: b.unicode || "" }),
         el("div.pj-recent-meta", { text: baniName(b) }),
@@ -396,10 +424,10 @@ export function projectorView({ onExit } = {}) {
     type: "search", spellcheck: "false", autocomplete: "off",
     placeholder: "First letter of each word",
     "aria-label": "Search Gurbani",
-    oninput: () => runQuery(),
+    class: "pj-gur-input",
+    oninput: () => { normaliseField(); runQuery(); },
     onkeydown: onQueryKey,
   });
-  const qEcho = el("div.pj-echo");
   const qMeta = el("div.pj-meta");
   const qResults = el("div.pj-list");
   const qKeys = el("div.pj-keys");
@@ -412,17 +440,29 @@ export function projectorView({ onExit } = {}) {
       qInput,
       kbToggle,
     ]),
-    qEcho, qMeta, qResults, qKeys,
+    qMeta, qResults, qKeys,
   ]);
+
+  /* The field shows Gurmukhi, whatever was typed.
+   *
+   * On a physical keyboard the operator types Latin - j k r - because that is
+   * the encoding the index is built on. But the sangat can see this panel, and
+   * "jkr" means nothing to them. So every keystroke is folded to the index
+   * form and the field is redrawn in Gurmukhi: type j, see ਜ. One letter is
+   * one codepoint (the nukta letters are precomposed), so Backspace removes
+   * exactly one letter. */
+  function normaliseField() {
+    const shown = toGurmukhi(toAscii(qInput.value));
+    if (qInput.value !== shown) {
+      qInput.value = shown;
+      qInput.setSelectionRange?.(shown.length, shown.length);
+    }
+  }
 
   let qToken = 0;
   async function runQuery() {
     const mine = ++qToken;
     const letters = toAscii(qInput.value);
-    qEcho.replaceChildren(
-      el("span.gur", { text: letters ? toGurmukhi(letters) : "" }),
-      el("span.pj-echo-a", { text: letters ? letters : "type j k r for ਜ ਕ ਰ" }),
-    );
 
     if (letters.length < MIN_LETTERS) {
       qMeta.textContent = "";
@@ -458,7 +498,10 @@ export function projectorView({ onExit } = {}) {
       qResults.append(el("button.pj-result", {
         dataset: { i: String(i) },
         "aria-selected": String(i === 0),
-        onclick: () => open({ type: "shabad", id: r.shabad_id, focusLine: r.verse_id }),
+        onclick: () => {
+          open({ type: "shabad", id: r.shabad_id, focusLine: r.verse_id });
+          handBack();
+        },
       }, [
         el("div.pj-result-gur.gur", { text: r.gurmukhi }),
         el("div.pj-result-meta", { text: r.page_no ? `Ang ${r.page_no}` : "" }),
@@ -467,6 +510,9 @@ export function projectorView({ onExit } = {}) {
   }
 
   function onQueryKey(e) {
+    // Page up/down do nothing in a one-line field, and they are what a
+    // presentation clicker sends. Let them through to the slideshow.
+    if (e.key === "PageDown" || e.key === "PageUp") return;
     const rows = [...qResults.querySelectorAll(".pj-result")];
     const cur = rows.findIndex((n) => n.getAttribute("aria-selected") === "true");
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -499,7 +545,7 @@ export function projectorView({ onExit } = {}) {
     KB_ROWS.flat().forEach((ch) => {
       grid.append(el("button.pj-key", {
         title: `${LETTER_NAMES[ch] || ch} — the “${ch}” key`,
-        onclick: () => { qInput.value += ch; runQuery(); qInput.focus(); },
+        onclick: () => { qInput.value += A2U[ch] || ch; normaliseField(); runQuery(); qInput.focus(); },
       }, [
         el("span.pj-key-g.gur", { text: A2U[ch] || ch }),
         el("span.pj-key-a", { text: ch }),
@@ -536,7 +582,10 @@ export function projectorView({ onExit } = {}) {
     }
     items.forEach((h) => {
       recentList.append(el("button.pj-recent", {
-        onclick: () => open({ type: h.type, id: h.id, focusLine: h.focusLine ?? null }),
+        onclick: () => {
+          open({ type: h.type, id: h.id, focusLine: h.focusLine ?? null });
+          handBack();
+        },
       }, [
         el("div.pj-recent-gur.gur", { text: h.gurmukhi || h.title || "" }),
         el("div.pj-recent-meta", {
@@ -583,16 +632,62 @@ export function projectorView({ onExit } = {}) {
       colourField("Text", "projInk"),
     ]));
 
-    pane.append(el("div.pj-group-title", { text: "Size and layout" }));
+    /* The face. Each tile is set in the face it names, so the choice is made
+       by looking, not by reading names. Sant Lipi stays the default. */
+    pane.append(el("div.pj-group-title", { text: "Gurmukhi font" }));
+    const fonts = el("div.pj-fonts");
+    FONTS.forEach((ft) => {
+      fonts.append(el("button.pj-font", {
+        "aria-pressed": String((store.get("projFont") || "Sant Lipi") === ft.value),
+        title: `${ft.label} · ${ft.note}`,
+        onclick: () => {
+          store.set("projFont", ft.value);
+          paintColours(); buildLook();
+          refitWhenLoaded(ft.value);
+        },
+      }, [
+        el("span.pj-font-sample", { text: "ਸਤਿ ਨਾਮੁ",
+                                     style: { fontFamily: `"${ft.value}"` } }),
+        el("span.pj-font-name", { text: ft.label }),
+      ]));
+    });
+    pane.append(fonts);
     pane.append(seg("Weight", WEIGHTS.map((w) => ({ value: w.value, label: w.label })),
       store.get("projWeight"),
       (v) => { store.set("projWeight", v); paintColours(); layout(); showLine(at); }));
+
+    /* Sizes, one per kind of text.
+       Gurbani is a share of the screen - 100% is as large as this shabad
+       allows. The rest are relative to it, so each can be taken up or down on
+       its own; making one larger shrinks the Gurbani just enough that
+       everything still fits, because nothing on a projector may fall off the
+       bottom. */
+    pane.append(el("div.pj-group-title", { text: "Size" }));
     pane.append(range({
-      label: "Text size", min: 40, max: 100, step: 1,
+      label: "Gurbani", min: 40, max: 100, step: 1,
       value: Math.round((store.get("projScale") || 1) * 100),
-      format: (v) => `${v}%`,
+      format: (v) => (v === 100 ? "Fill" : `${v}%`),
       onInput: (v) => { store.set("projScale", v / 100); layout(); },
     }));
+    [
+      ["Transliteration", "projTlScale"],
+      ["English", "projEnScale"],
+      ["Punjabi", "projPaScale"],
+    ].forEach(([label, key]) => pane.append(range({
+      label, min: 50, max: 200, step: 5,
+      value: Math.round((store.get(key) || 1) * 100),
+      format: (v) => `${v}%`,
+      onInput: (v) => { store.set(key, v / 100); paintColours(); layout(); },
+    })));
+    pane.append(el("button.pj-reset", {
+      text: "Reset sizes",
+      onclick: () => {
+        store.update({ projScale: 1, projTlScale: 1, projEnScale: 1, projPaScale: 1 });
+        paintColours(); layout(); buildLook();
+      },
+    }));
+
+    pane.append(el("div.pj-group-title", { text: "Layout" }));
     pane.append(seg("Alignment", [
       { value: "center", label: "Centred" },
       { value: "start", label: "Natural" },
@@ -696,8 +791,14 @@ export function projectorView({ onExit } = {}) {
        "the Gurbani being projected", so the panel's own lists stay regular
        and the reader behind is untouched either way. */
     const w = String(store.get("projWeight") || 400);
-    stage.style.setProperty("--gur-weight", w);
-    blankWord.style.setProperty("--gur-weight", w);
+    const f = `"${store.get("projFont") || "Sant Lipi"}"`;
+    for (const node of [stage, blankWord]) {
+      node.style.setProperty("--gur-weight", w);
+      node.style.setProperty("--gur-font", f);
+    }
+    root.style.setProperty("--pj-tl", String(store.get("projTlScale") || 1));
+    root.style.setProperty("--pj-en", String(store.get("projEnScale") || 1));
+    root.style.setProperty("--pj-pa", String(store.get("projPaScale") || 1));
     // Glass, hairlines and hover states have to flip with the background, or
     // the panel is invisible on Paper and blinding on Black.
     root.dataset.lum = isDarkColour(bg) ? "dark" : "light";
@@ -709,14 +810,21 @@ export function projectorView({ onExit } = {}) {
 
   function handleKey(e) {
     if (!on) return false;
-    const typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+    /* "Typing" means a text field the operator can actually see. A slider or
+       colour well with focus is not typing - the arrows belong to the slides
+       - and nothing inside a closed panel is typing, whatever the browser
+       thinks has focus. */
+    const t = e.target;
+    const textual = t.tagName === "TEXTAREA" ||
+      (t.tagName === "INPUT" && /^(search|text|)$/.test(t.type || ""));
+    const typing = textual && !root.classList.contains("side-closed");
     const mod = e.metaKey || e.ctrlKey;
 
     if (mod && e.key.toLowerCase() === "k") {
       e.preventDefault(); setTab("search"); qInput.focus(); qInput.select(); return true;
     }
     if (e.key === "Escape") { e.preventDefault(); exit(); return true; }
-    if (typing) return true;          // the field's own handler has it
+    if (typing && e.key !== "PageDown" && e.key !== "PageUp") return true;
 
     switch (e.key) {
       case "ArrowRight": case "ArrowDown": case "PageDown": case " ":
@@ -750,6 +858,16 @@ export function projectorView({ onExit } = {}) {
     return true;   // projector mode swallows the rest rather than leaking keys
   }
 
+  /* A face downloads the first time it is used, and measuring before it
+     arrives fits the fallback font instead - then the real one lands larger
+     and overflows. So fit now, and again once the browser has it. */
+  function refitWhenLoaded(family) {
+    layout(); showLine(at);
+    document.fonts?.load?.(`400 48px "${family}"`, "ਸਤਿ")
+      .then(() => { layout(); showLine(at); })
+      .catch(() => {});
+  }
+
   function nudgeScale(d) {
     // Rounded, or repeated nudges drift into 0.9500000000000001.
     const v = Math.round(
@@ -771,6 +889,10 @@ export function projectorView({ onExit } = {}) {
     wakeTimer = setTimeout(() => root.classList.remove("live"), 2400);
   }
   root.addEventListener("mousemove", wake);
+
+  // Clicking the projected line is the universal "give me the keyboard back".
+  stage.addEventListener("mousedown", () => handBack());
+  blankWord.addEventListener("mousedown", () => handBack());
 
   /* --- resizing the panel -------------------------------------------------- */
   grip.addEventListener("mousedown", (e) => {

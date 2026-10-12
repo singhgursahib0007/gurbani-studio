@@ -93,7 +93,14 @@ It has a `@supports not (backdrop-filter)` fallback to an opaque mix of the
 presenter's own two colours, because without the blur a translucent panel is
 just noise with Gurbani showing through it.
 
-Drag its left edge to resize, 320–680px. The width persists.
+**One control opens and closes it**: a pull-tab at mid-height on the panel's
+left edge, which travels with the panel. Open, it shows » on the panel's
+edge; closed, it waits on the screen edge showing «, visible only while the
+pointer moves. There used to be two — a » in the header to hide, a separate
+tab on the screen edge to bring it back — and two controls for one job read
+as a bug. `S` does the same from the keyboard.
+
+Drag the panel's left edge to resize, 320–680px. The width persists.
 
 ### The five tabs
 
@@ -105,8 +112,13 @@ about; hunting for the line by pressing `→` forty times is not a workflow.
 screen without leaving projector mode. It opens through the same path as
 everything else, which means it lands in Recent too.
 
-**Search** — first-letter search with the field at the top, results under it,
-and the [Gurmukhi keyboard](GURMUKHI.md#the-keyboard) at the bottom.
+**Search** — first-letter search with the field at the top, and the field
+draws what you type **in Gurmukhi**: type `j` on the keyboard,
+see ਜ. The operator types Latin because that is the encoding the index is
+built on, but the hall can see this panel and `jmTAq` means nothing to them.
+Every keystroke is folded to the index form and redrawn; each letter is one
+codepoint, so Backspace removes exactly one letter. Results sit under
+it, and the [Gurmukhi keyboard](GURMUKHI.md#the-keyboard) at the bottom.
 On by default here, unlike the desktop app, where it is off and the physical
 keyboard is the input: a presenter is often clicking, not typing. Each key
 shows the Gurmukhi shape with the Latin letter that types it in the corner.
@@ -121,10 +133,21 @@ it stays a working set rather than an archive. Re-opening something moves it
 up rather than adding a duplicate, because the same shabad comes back.
 
 **Look** — five palettes chosen for a lamp rather than a monitor, plus a
-colour picker for each of the two colours; **weight** (regular, medium, bold —
-a heavier face carries further through a lamp than a larger light one); text
-size; alignment; and toggles for transliteration, English, Punjabi, larivaar
-and the caption.
+colour picker for each of the two colours; the **Gurmukhi font** (Sant Lipi by
+default, or Mukta Mahee, Noto Sans or Anek — each tile set in the face it
+names); **weight** (regular, medium, bold — a heavier face carries further
+through a lamp than a larger light one); **a size for each kind of text**;
+alignment; and toggles for transliteration, English, Punjabi, larivaar and the
+caption.
+
+The sizes are not independent in the way four font-size boxes would be, and
+deliberately so. Gurbani is a share of the screen — 100% ("Fill") is as large
+as this shabad allows. Transliteration, English and Punjabi are each 50–200%
+of their usual ratio to it. Because the fit measures everything that will be
+drawn, raising the English shrinks the Gurbani just enough that the whole
+slide still fits: on a projector nothing may fall off the bottom, so a
+larger translation has to be paid for somewhere, and the fit pays for it
+automatically.
 
 The weight applies to the projected line, not to the panel's own lists and not
 to the reader behind — the control means "the Gurbani on the screen".
@@ -149,7 +172,8 @@ custom colours too and not only the five presets.
 
 ## Preferences are its own set
 
-`projBg`, `projInk`, `projWeight`, `projScale`, `projTranslit`, `projEn`,
+`projBg`, `projInk`, `projFont`, `projWeight`, `projScale`, `projTlScale`,
+`projEnScale`, `projPaScale`, `projTranslit`, `projEn`,
 `projPa`, `projLarivaar`, `projCaption`, and the panel's own state — all
 separate from the reader's.
 
@@ -178,6 +202,25 @@ close button are the ways out, and `F` toggles full screen on its own.
 Whatever was moved to while presenting is what the reader shows on exit. If
 you searched your way to Ang 681 in front of the sangat, closing the projector
 leaves you on Ang 681, not back where you started.
+
+## The keyboard always comes back to the slides
+
+The worst bug this mode had: after picking a shabad from Search, **the arrow
+keys stopped working**. Focus stayed in the search field, so → moved a text
+caret, Space typed a space, and `S` typed an "s" — the slideshow heard none
+of it. Collapsing the panel made it worse, not better: the field was now
+hidden inside the panel and still taking every key. Safari makes it more
+likely still, because clicking a button there does not move focus at all.
+
+The rule now is that **choosing something hands the keyboard back**. Picking
+a result, a bani, a recent entry or a line moves focus to the projector
+itself (`tabindex="-1"`, so it can hold focus without joining the Tab order).
+Closing the panel does the same *before* the panel goes `inert`, rather than
+trusting each browser's idea of what happens to focus inside an inert subtree
+— Chrome moves it to the body, Safari may leave it where it was. Clicking the
+projected line is the universal way to get the keyboard back. And `⇞` `⇟` —
+what a clicker sends — reach the slides even while a field has focus, since
+they do nothing in a one-line field anyway.
 
 ## A trap: a panel moved by `transform` is still there
 

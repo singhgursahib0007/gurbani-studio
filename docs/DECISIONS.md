@@ -183,3 +183,23 @@ appeared on the white Paper background. `.proj .gur { color: inherit }`.
 identifies none of them. The same defect Saved had on the phone, in a new
 place, which is why the fix this time is a shared `nameLine()` in `record.js`
 rather than a third copy of the same guard.
+
+**Picking a shabad left the keyboard in the search field.** After Enter on a
+result, focus stayed in the field: → moved its caret, Space typed into it,
+`S` typed an "s", and the slideshow received nothing — on screen it looked as
+though the arrow keys had simply stopped working. Hiding the panel hid the
+field but not its grip on the keyboard. Every pick now hands focus back to
+the projector, closing the panel moves focus out *before* the panel turns
+`inert`, and clicker keys pass through fields regardless. *Whoever holds focus
+holds the keyboard; a mode driven by keys has to decide that explicitly
+rather than inherit it from whatever was clicked last.*
+
+**Two identifiers, one name, two bugs.** The new panel pull-tab was first
+called `toggle` — already the name of the Look tab's switch-row builder, so
+the module failed to parse and projector mode vanished entirely — and then
+given the class `pj-toggle`, already the class of those same switch rows, so
+the pull-tab inherited their layout and lost its icon. It is `sideToggle` and
+`.pj-pull`. The first slipped past a syntax check because `node --check`
+silently passes ES modules with errors in them; parsing with
+`--input-type=module` catches it.
+
