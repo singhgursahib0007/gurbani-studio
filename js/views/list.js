@@ -148,7 +148,16 @@ export function listPane({ onOpen, onToggleSidebar }) {
           el("p", { text: "Once, then it is instant and works offline." }),
           bar,
         ]));
-        await loadIndex((f) => { fill.style.width = `${Math.round(f * 100)}%`; });
+        try {
+          await loadIndex((f) => { fill.style.width = `${Math.round(f * 100)}%`; });
+        } catch {
+          if (mine !== token) return;
+          clear(scroll);
+          scroll.append(emptyState("search", "Search is not available offline yet",
+            "It needs the search index, which downloads the first time you search " +
+            "online — or all at once from Settings → Offline."));
+          return;
+        }
         if (mine !== token) return;
       }
       const res = await runSearch(letters, { mode: "anywhere", limit: 200 });

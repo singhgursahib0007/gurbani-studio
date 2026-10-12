@@ -11,6 +11,7 @@ import { Icons } from "../icons.js";
 import { store } from "../store.js";
 import { getMeta } from "../data.js";
 import { GROUPS, baniGroup } from "../banis-info.js";
+import { offlineChip } from "./offline-panel.js";
 
 export function sidebar({ onSelect, onSettings, onAppearance, onProject }) {
   const root = el("div.pane.sidebar");
@@ -23,9 +24,11 @@ export function sidebar({ onSelect, onSettings, onAppearance, onProject }) {
     el("div.titlebar-title", { text: "Gurbani Studio" }),
   ]);
 
+  const gear = iconBtn("gear", `Settings  ${MOD},`, (e) => onSettings(e.currentTarget));
   const foot = el("div.side-foot", {}, [
     iconBtn("palette", "Appearance", (e) => onAppearance(e.currentTarget)),
-    iconBtn("gear", `Settings  ${MOD},`, (e) => onSettings(e.currentTarget)),
+    gear,
+    offlineChip(() => onSettings(gear)),
   ]);
 
   root.append(bar, scroll, foot);

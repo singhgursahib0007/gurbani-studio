@@ -1,0 +1,325 @@
+{
+ "format": 1,
+ "version": "78e9b9443fc9",
+ "files": [
+  {
+   "path": "lines.tsv",
+   "bytes": 17262000,
+   "gz": 4323715,
+   "sha256": "904ec206aff375228e0ac759d68d979e876defeb8fe4fd42d7055f1f53ac8e75"
+  }
+ ],
+ "packs": [
+  {
+   "path": "packs/shabads-000.json",
+   "bytes": 5031142,
+   "gz": 1155814,
+   "sha256": "903538b1577b2c50cdc5c53a21fd664ae487119a7905e5b8596bce46cf48855f",
+   "count": 499
+  },
+  {
+   "path": "packs/shabads-001.json",
+   "bytes": 3579170,
+   "gz": 782222,
+   "sha256": "321894928687daf9dd453096eb13ae0a6dafdaca9104501f602c6862036cc575",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-002.json",
+   "bytes": 3226276,
+   "gz": 734407,
+   "sha256": "48ffa44b89b6b34681ba29fba6f20c9864f7fb775e9fef525d5b820c26a39fc0",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-003.json",
+   "bytes": 4102152,
+   "gz": 936879,
+   "sha256": "8ee3429906e84c2ea6497a1e7f411c70a13248a3deb79529ae55e2a97be1bf9f",
+   "count": 499
+  },
+  {
+   "path": "packs/shabads-004.json",
+   "bytes": 3686007,
+   "gz": 817875,
+   "sha256": "13084c49b1c80a0e39d43cf4f469549df3d66c2970c627ee82a20a84ac479748",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-005.json",
+   "bytes": 4094479,
+   "gz": 943238,
+   "sha256": "187b4deee30ba002b718dd20b4ba865fcd097264a3d7c50d02685e4d301ff934",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-006.json",
+   "bytes": 4669026,
+   "gz": 1067070,
+   "sha256": "334d49acd4ce62d152afab164597c28929ea5adc20bca6381a0bb6c0ffabcd5a",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-007.json",
+   "bytes": 4901249,
+   "gz": 1140515,
+   "sha256": "ec1cd43d31a56675f5459b9e811e8369c9be87fbb7cf511063e76bc6646f1f9f",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-008.json",
+   "bytes": 3947021,
+   "gz": 891153,
+   "sha256": "4ddfcab914a281de19e56aca286c7b7b21534959f5e51bc687c9b338ed63a930",
+   "count": 499
+  },
+  {
+   "path": "packs/shabads-009.json",
+   "bytes": 3433953,
+   "gz": 791436,
+   "sha256": "301dd95c591703490659a4349f8d97d26079a0450e367f126ec05005e533d248",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-010.json",
+   "bytes": 1876578,
+   "gz": 423936,
+   "sha256": "46482dca60a4e27a07da1bbc9ead2167d59f98f45c945e0c320dc860a288d3a2",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-011.json",
+   "bytes": 103197,
+   "gz": 21996,
+   "sha256": "73c7d63a1d2c9369d9b9594df364db90518927dc6746db406ad7f305163857ac",
+   "count": 41
+  },
+  {
+   "path": "packs/shabads-014.json",
+   "bytes": 1372768,
+   "gz": 285081,
+   "sha256": "724ed6527eb94be0fb6854bc836ff552b7c508d1f24addfb80c339d7761b949e",
+   "count": 98
+  },
+  {
+   "path": "packs/shabads-015.json",
+   "bytes": 3984384,
+   "gz": 898683,
+   "sha256": "5ece52dd96d36b8dc14da33d994dd3369210435422a5244ec513cdd530dc5385",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-016.json",
+   "bytes": 3790625,
+   "gz": 862401,
+   "sha256": "7cf4803cf5cadb664070facc54a1ed1548b4108e75703d2b6a50dbfa17a13254",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-017.json",
+   "bytes": 2462776,
+   "gz": 550742,
+   "sha256": "818999e194be330116c336cc81e70b92ceaee90ee4fad9343a4a09613e04c8bb",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-018.json",
+   "bytes": 5099267,
+   "gz": 1046823,
+   "sha256": "81e2864bf3def3d06d546186e5ecdf7ae82e44d76ae9460f608a69c4c88e7c9e",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-019.json",
+   "bytes": 2134509,
+   "gz": 347723,
+   "sha256": "3285f22e56e6b2dbf04651222d3220a7480d9b5d7cefa97c57782a8e0215de4b",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-020.json",
+   "bytes": 1493836,
+   "gz": 294949,
+   "sha256": "64c1e248da82f51fde786ce56c3e5e4dd6c07d4311db702776fb71a7d787d7e2",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-021.json",
+   "bytes": 1801360,
+   "gz": 380806,
+   "sha256": "64006bc5a8b442e93a29682e04798aeaa055c9c64f951ed29cfc642c02f71f74",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-022.json",
+   "bytes": 1601435,
+   "gz": 303354,
+   "sha256": "54646773c38f774d02ce004a42d1adc85ef5c3cdf23d14a2c6c4282565479e5d",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-023.json",
+   "bytes": 1615374,
+   "gz": 291485,
+   "sha256": "d69da32bdf7db44312ca09ed843d477e115e71f3185d9054228cd820a95426b8",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-024.json",
+   "bytes": 2033011,
+   "gz": 371585,
+   "sha256": "64031c8ae1f2c41f12285afb4f7759e282b623cd859ce28461d04141f223739e",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-025.json",
+   "bytes": 3520107,
+   "gz": 697904,
+   "sha256": "c985d3d661b4000279c39945e8802b1e9d45dab83800e8f69e0d379d618e24b4",
+   "count": 309
+  },
+  {
+   "path": "packs/shabads-060.json",
+   "bytes": 821556,
+   "gz": 190513,
+   "sha256": "57ebcedbc48f74becb36c669cbce56e102b126422102d391112c392f78f1a1c2",
+   "count": 81
+  },
+  {
+   "path": "packs/shabads-062.json",
+   "bytes": 212675,
+   "gz": 45637,
+   "sha256": "ecca7589cf4aa7d8a7aa9f868dfe85c7464e4eda6444cc9f252db1017d1cd456",
+   "count": 37
+  },
+  {
+   "path": "packs/shabads-064.json",
+   "bytes": 715993,
+   "gz": 126163,
+   "sha256": "9000ccf484fed485c4ceb2f36daf5e03d05af7a779be6ba6a1830fb816771b9b",
+   "count": 499
+  },
+  {
+   "path": "packs/shabads-065.json",
+   "bytes": 34226,
+   "gz": 6817,
+   "sha256": "16da05a8a40a1c2508c4741253e8671efe53eda62e748b3c927321d5797e71d6",
+   "count": 17
+  },
+  {
+   "path": "packs/shabads-080.json",
+   "bytes": 1659678,
+   "gz": 377177,
+   "sha256": "39f2a65a3f512390fdf1478747401d686f3798448330abfd0ab9ee6a06e1619f",
+   "count": 497
+  },
+  {
+   "path": "packs/shabads-081.json",
+   "bytes": 1389589,
+   "gz": 329243,
+   "sha256": "98a676ead628b8659e0e18dd1bb4cce820bb510c46a81cca364b578bdcc5f759",
+   "count": 414
+  },
+  {
+   "path": "packs/shabads-082.json",
+   "bytes": 1403490,
+   "gz": 330158,
+   "sha256": "08821717bfd2c44363437b7ee691158ab1afae28de291abf91d390ce9c0146bf",
+   "count": 500
+  },
+  {
+   "path": "packs/shabads-083.json",
+   "bytes": 574755,
+   "gz": 145296,
+   "sha256": "7cb8bccc2794330473b6ff4a11c6cffb3d30ea34f62a53ddd4c81a252c62b9f2",
+   "count": 212
+  },
+  {
+   "path": "packs/shabads-086.json",
+   "bytes": 23186,
+   "gz": 4779,
+   "sha256": "4bb8537a7f510423ddfd41cb1a031eb6c4159d1a98e896897570b2583d1dc544",
+   "count": 5
+  },
+  {
+   "path": "packs/shabads-666.json",
+   "bytes": 23652,
+   "gz": 6346,
+   "sha256": "704cbf23853755eefec5813aede285f57c9866f287dc0ad41481566fe0833b5c",
+   "count": 2
+  },
+  {
+   "path": "packs/shabads-1110.json",
+   "bytes": 14830,
+   "gz": 4758,
+   "sha256": "0c85e58340ed66ed2aa2f2bed49e07ee600a948a4f0c9a424f6e685d97b2ef5d",
+   "count": 2
+  },
+  {
+   "path": "packs/shabads-1111.json",
+   "bytes": 169077,
+   "gz": 35876,
+   "sha256": "f9e08267f4eeea41f17a7503591675459311ceb2ee1e2a508053b995187c10a1",
+   "count": 15
+  },
+  {
+   "path": "packs/banis-00.json",
+   "bytes": 1237052,
+   "gz": 232565,
+   "sha256": "a6c2fdd88e7def71b8f8e8ea7a1737b237d5670a0c6c5d9041b0744373be2a04",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-01.json",
+   "bytes": 829637,
+   "gz": 181940,
+   "sha256": "f36ca5ddeed5b374232073c2844c04c7e7869e4294fff10aefd837b357a9350c",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-02.json",
+   "bytes": 3417433,
+   "gz": 688778,
+   "sha256": "f3cab231388492bd5c104c074be1e1f52c1babbacf77627a9f138b131c61b051",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-03.json",
+   "bytes": 754953,
+   "gz": 161696,
+   "sha256": "dda40cc42b20996b23f9fa67db4bd0d8995870de66c925647026b950438f6bee",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-04.json",
+   "bytes": 2037929,
+   "gz": 448990,
+   "sha256": "25b7dafc9fa040e179537df397d2fb0cbfa6222c07823c3229b74c82fb2cc845",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-05.json",
+   "bytes": 1384302,
+   "gz": 311883,
+   "sha256": "5d6631634a10fbf42f7184c584b129e9774420a56beb7058d8485552b5aa5492",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-06.json",
+   "bytes": 3016118,
+   "gz": 639343,
+   "sha256": "b0086031df19fb619e8a5c3324fd546a7dbce64b79d4cb08a4cbbb34acf28d62",
+   "count": 13
+  },
+  {
+   "path": "packs/banis-07.json",
+   "bytes": 2822042,
+   "gz": 593580,
+   "sha256": "9403139a7fb2fb669e5dd398a97b2c94ed6c262360bd8b4bb5e1e57770c3a0fe",
+   "count": 13
+  }
+ ],
+ "entries": 13331,
+ "bytes": 113363875,
+ "gz": 25223330
+}

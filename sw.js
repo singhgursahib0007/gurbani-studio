@@ -21,7 +21,7 @@
  * and the old one is deleted on activate.
  */
 
-const BUILD = "20261012-200743";
+const BUILD = "20261012-202634";
 const CACHE = `gurbani-studio-${BUILD}`;
 
 /* Paths are relative so this works both at the site root and under a
@@ -37,6 +37,7 @@ const SHELL = [
   "./js/main.js",
   "./js/store.js",
   "./js/data.js",
+  "./js/offline.js",
   "./js/record.js",
   "./js/ui.js",
   "./js/icons.js",
@@ -47,7 +48,12 @@ const SHELL = [
   "./js/views/reader.js",
   "./js/views/settings.js",
   "./js/views/projector.js",
+  "./js/views/offline-panel.js",
   "./fonts/SantLipi.woff2",
+  "./fonts/MuktaMahee.woff2",
+  "./fonts/MuktaMahee-700.woff2",
+  "./fonts/NotoSansGurmukhi.woff2",
+  "./fonts/TiroGurmukhi.woff2",
   "./icon.svg",
   "./khanda.svg",
   "./manifest.webmanifest",
@@ -55,6 +61,33 @@ const SHELL = [
 ];
 
 const BIG = /\/data\/(lines|text-en)\.tsv$/;
+
+/* The offline copy of the corpus lives in its own caches, named for the
+ * corpus version rather than the build, written by the page (js/offline.js)
+ * and only ever read here. Two consequences:
+ *
+ *   - It survives deploys. A new build replaces the shell cache; the texts do
+ *     not change because the CSS did, and deleting 100 MB someone downloaded
+ *     on purpose would be indefensible.
+ *   - During an update there can be two: the complete old one and a partial
+ *     new one. caches.keys() lists in creation order, so the older, complete
+ *     copy answers first until the new one finishes and the page deletes the
+ *     old. */
+const DATA_PREFIX = "gurbani-studio-data-";
+
+/* The packs and their manifest are downloaded by the page straight into the
+ * offline cache. Letting them through here as well would store every pack a
+ * second time in the shell cache - another 100 MB for nothing. */
+const PASS_THROUGH = /\/data\/(packs\/|offline\.json$)/;
+
+async function fromOfflineCopy(req) {
+  for (const name of await caches.keys()) {
+    if (!name.startsWith(DATA_PREFIX)) continue;
+    const hit = await (await caches.open(name)).match(req, { ignoreSearch: true });
+    if (hit) return hit;
+  }
+  return null;
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -78,7 +111,13 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)),
+        // Only this app's own old shell caches. Not the offline copy, and not
+        // anything else on the origin: on GitHub Pages this app shares
+        // singhgursahib0007.github.io with the phone app, and "delete every
+        // cache that is not mine" used to delete the other app's caches too.
+        keys.filter((k) => k.startsWith("gurbani-studio-") &&
+                           !k.startsWith(DATA_PREFIX) && k !== CACHE)
+            .map((k) => caches.delete(k)),
       ))
       .then(() => self.clients.claim()),
   );
@@ -104,28 +143,39 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (BIG.test(url.pathname)) {
+  if (PASS_THROUGH.test(url.pathname)) return;
+
+  // Anything the offline copy holds is served from it: immutable for this
+  // corpus version, so there is nothing to revalidate.
+  if (url.pathname.includes("/data/") && !url.pathname.endsWith("/meta.json")) {
     event.respondWith(
-      caches.match(req).then((hit) => {
-        const net = fetch(req).then((res) => {
-          if (res.ok) caches.open(CACHE).then((c) => c.put(req, res.clone()));
-          return res;
-        });
-        return hit || net;
-      }),
+      fromOfflineCopy(req).then((hit) => hit || fromShell(req, BIG.test(url.pathname))),
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(req).then((hit) => {
-      const net = fetch(req)
-        .then((res) => {
-          if (res.ok) caches.open(CACHE).then((c) => c.put(req, res.clone()));
-          return res;
-        })
-        .catch(() => hit);
-      return hit || net;
-    }),
-  );
+  event.respondWith(fromShell(req, BIG.test(url.pathname)));
 });
+
+/* The pre-offline behaviour, unchanged: big files cache-first, everything
+ * else stale-while-revalidate. */
+function fromShell(req, big) {
+  if (big) {
+    return caches.match(req).then((hit) => {
+      const net = fetch(req).then((res) => {
+        if (res.ok) caches.open(CACHE).then((c) => c.put(req, res.clone()));
+        return res;
+      });
+      return hit || net;
+    });
+  }
+  return caches.match(req).then((hit) => {
+    const net = fetch(req)
+      .then((res) => {
+        if (res.ok) caches.open(CACHE).then((c) => c.put(req, res.clone()));
+        return res;
+      })
+      .catch(() => hit || Response.error());
+    return hit || net;
+  });
+}
