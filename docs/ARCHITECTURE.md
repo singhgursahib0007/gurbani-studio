@@ -74,7 +74,7 @@ first visit.
 | | |
 |---|---|
 | `data/processed/gurbani.sqlite` | 394 MB, gitignored, rebuildable |
-| `site/` | 124 MB across ~13,400 files |
+| `site/` | ~220 MB across ~13,400 files — the corpus twice, as files and as [offline packs](OFFLINE.md) |
 | App source | ~2,300 lines of JS and CSS |
 | Harness | ~2,400 lines of Python, no dependencies |
 | First page load, published | ~40 KB gzipped |

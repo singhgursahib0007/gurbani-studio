@@ -8,6 +8,7 @@
 import { el, popover, popItem, switchRow, sliderRow, segmented, toast, MOD } from "../ui.js";
 import { Icons } from "../icons.js";
 import { store, DEFAULTS, FONTS, WEIGHTS, THEMES } from "../store.js";
+import { offlinePanel } from "./offline-panel.js";
 
 const pct = (v) => `${Math.round(v * 100)}%`;
 
@@ -85,6 +86,10 @@ export function openAppearance(anchor) {
 /** What shows under each line, gestures, and the resets. */
 export function openSettings(anchor) {
   popover(anchor, (pop, { close }) => {
+    // First, because it is the one thing here worth doing before you need
+    // it: at the gurdwara with no signal is too late to find out.
+    pop.append(el("div.pop-title", { text: "Offline" }), offlinePanel(), el("div.pop-sep"));
+
     pop.append(el("div.pop-title", { text: "Show with each line" }));
     pop.append(
       switchRow("Transliteration", store.get("transliteration"),

@@ -233,3 +233,71 @@
 }
 .menu button:hover { background: var(--selected); color: var(--selected-ink); }
 .menu svg { width: 15px; height: 15px; }
+
+/* --- offline ---------------------------------------------------------------
+   One component in two settings: a popover in the app's own theme, and the
+   projector's glass panel in the presenter's colours. So it is drawn from
+   currentColor and two variables each context sets, rather than from either
+   context's palette. */
+.ol {
+  --ol-accent: var(--gold);
+  --ol-on-accent: var(--bg);
+  padding: var(--s-2) 10px var(--s-3);
+}
+.proj .ol {
+  --ol-accent: var(--proj-ink);
+  --ol-on-accent: var(--proj-bg);
+  padding: 0 var(--s-4) var(--s-2);
+}
+.ol-head { display: flex; gap: 10px; align-items: flex-start; }
+.ol-icon { display: flex; flex: none; color: var(--ol-accent); margin-top: 1px; }
+.ol-icon svg { width: 20px; height: 20px; }
+.ol[data-phase="unsupported"] .ol-icon,
+.ol[data-phase="error"] .ol-icon { color: inherit; opacity: 0.6; }
+.ol-text { flex: 1; min-width: 0; }
+.ol-title { font-size: var(--t-body); font-weight: 600; }
+.ol-sub { font-size: var(--t-tiny); opacity: 0.68; line-height: 1.45; margin-top: 2px; }
+.ol-note { font-size: var(--t-tiny); opacity: 0.5; line-height: 1.45; margin-top: var(--s-2); }
+
+.ol-bar {
+  height: 4px; margin-top: 10px; overflow: hidden;
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+.ol-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ol-accent);
+  transition: width 180ms linear;
+}
+.ol[data-phase="verifying"] .ol-fill { animation: ol-pulse 1s ease-in-out infinite alternate; }
+@keyframes ol-pulse { from { opacity: 1; } to { opacity: 0.45; } }
+
+.ol-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ol-btn {
+  padding: 5px 13px;
+  border-radius: var(--r-full);
+  font-size: var(--t-small); font-weight: 600;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.ol-btn:hover { background: color-mix(in srgb, currentColor 17%, transparent); }
+.ol-btn:active { transform: scale(0.97); }
+.ol-btn.primary { background: var(--ol-accent); color: var(--ol-on-accent); }
+.ol-btn.primary:hover { filter: brightness(1.08); }
+.ol-btn.danger { color: #D9483B; background: rgba(217, 72, 59, 0.12); }
+
+/* The sidebar-foot chip. */
+.ol-chip {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 26px; padding: 0 8px;
+  border-radius: var(--r-full);
+  font-size: var(--t-tiny); font-weight: 600; font-variant-numeric: tabular-nums;
+  color: var(--label-2);
+  transition: background var(--dur-fast) var(--ease);
+}
+.ol-chip:hover { background: var(--fill); }
+.ol-chip svg { width: 16px; height: 16px; }
+.ol-chip.ok { color: var(--gold); }
+.ol-chip.warn { color: #D9483B; background: rgba(217, 72, 59, 0.10); }

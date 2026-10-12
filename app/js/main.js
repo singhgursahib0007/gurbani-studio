@@ -270,6 +270,9 @@ function palette() {
 }
 
 /* --- offline -------------------------------------------------------------- */
+window.addEventListener("offline-ready", () =>
+  toast("Ready offline — everything now works with no connection", { ms: 4200 }));
+
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   const register = () => navigator.serviceWorker.register("./sw.js").catch(() => {});
   if (document.readyState === "complete") register();

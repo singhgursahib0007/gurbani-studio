@@ -19,6 +19,8 @@ picks its data path from the `window.GURBANI_STATIC` marker injected below.
 """
 from __future__ import annotations
 
+import gzip
+import hashlib
 import json
 import shutil
 import sys
@@ -222,7 +224,13 @@ def build_static(out_dir: Path | None = None, include_text: bool = True,
         btotal += p.stat().st_size
     print(f"  banis/               {btotal / 1e6:,.1f} MB ({len(bani_ids)} files)")
 
-    # -- 7. a README so the published repo explains itself ----------------
+    # -- 7. offline packs ---------------------------------------------------
+    offline = _write_offline_packs(data)
+    print(f"  packs/               {offline['bytes'] / 1e6:,.1f} MB in "
+          f"{len(offline['packs'])} packs, ~{offline['gz'] / 1e6:,.1f} MB to download "
+          f"(corpus {offline['version']})")
+
+    # -- 8. a README so the published repo explains itself ----------------
     (out / "README.md").write_text(f"""# GurbaniSearch
 
 A static Gurbani search built from [BaniDB](https://github.com/KhalisFoundation/banidb-api),
@@ -246,3 +254,76 @@ in `data/meta.json`; this site only reorganises them.
     print(f"\n  site: {out}  —  {size / 1e6:,.1f} MB total, "
           f"built in {time.monotonic() - started:.0f}s")
     return out
+
+
+# ------------------------------------------------------------------ offline --
+BANIS_PER_PACK = 13
+
+
+def _write_offline_packs(data: Path) -> dict:
+    """Bundle the corpus for "make available offline", and describe it.
+
+    The site serves one small JSON file per shabad, which is right for reading
+    online and wrong for downloading everything: thirteen thousand requests is
+    minutes of round trips, and on a weak connection some of them fail. So the
+    same files are also published as a few dozen packs - one per shabad shard,
+    a handful for the banis - and the app unpacks them into its cache under
+    the original URLs. Nothing that reads a shabad has to know offline exists.
+
+    Each pack carries its files as raw strings, keyed by their path under
+    data/, so the browser can store them without parsing and re-serialising
+    every shabad. `offline.json` lists every pack with its size, its gzipped
+    size (what actually crosses the wire) and a SHA-256 the app checks before
+    trusting it.
+
+    The corpus version is a hash of those hashes. It changes only when the
+    texts change - not on every deploy - so a phone that downloaded last month
+    is not asked to download the same 100 MB again because the CSS moved.
+    """
+    packs_dir = data / "packs"
+    if packs_dir.exists():
+        shutil.rmtree(packs_dir)
+    packs_dir.mkdir()
+
+    groups: list[tuple[str, list[Path]]] = []
+    for shard in sorted((data / "shabads").iterdir(), key=lambda d: int(d.name)):
+        files = sorted(shard.glob("*.json"), key=lambda f: int(f.stem))
+        groups.append((f"shabads-{int(shard.name):03d}", files))
+    banis = sorted((data / "banis").glob("*.json"), key=lambda f: int(f.stem))
+    for i in range(0, len(banis), BANIS_PER_PACK):
+        groups.append((f"banis-{i // BANIS_PER_PACK:02d}", banis[i:i + BANIS_PER_PACK]))
+
+    def describe(path: Path, rel: str, **extra) -> dict:
+        raw = path.read_bytes()
+        return {"path": rel, "bytes": len(raw),
+                "gz": len(gzip.compress(raw, 6)),
+                "sha256": hashlib.sha256(raw).hexdigest(), **extra}
+
+    packs = []
+    for name, files in groups:
+        body = {"files": {f.relative_to(data).as_posix(): f.read_text(encoding="utf-8")
+                          for f in files}}
+        out = packs_dir / f"{name}.json"
+        out.write_text(json.dumps(body, ensure_ascii=False, separators=(",", ":")),
+                       encoding="utf-8")
+        packs.append(describe(out, f"packs/{name}.json", count=len(files)))
+
+    # The search index travels whole: it is one file, and it is the thing that
+    # makes first-letter search work without a connection.
+    singles = [describe(data / "lines.tsv", "lines.tsv")]
+
+    everything = singles + packs
+    version = hashlib.sha256(
+        "".join(x["sha256"] for x in everything).encode()).hexdigest()[:12]
+    manifest = {
+        "format": 1,
+        "version": version,
+        "files": singles,
+        "packs": packs,
+        "entries": len(singles) + sum(p["count"] for p in packs),
+        "bytes": sum(x["bytes"] for x in everything),
+        "gz": sum(x["gz"] for x in everything),
+    }
+    (data / "offline.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    return manifest
+

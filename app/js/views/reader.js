@@ -65,7 +65,25 @@ export function readerPane({ onSaveChanged, onToggleList, onImmersive, onProject
       el("div", { html: Icons.book }), el("h3", { text: "Opening…" }),
     ]));
 
-    record = await loadRecord({ type, id });
+    let loaded;
+    try {
+      loaded = await loadRecord({ type, id });
+    } catch {
+      // Not downloaded and no connection, or the connection dropped. Say
+      // which, instead of leaving "Opening…" on screen for ever.
+      record = null;
+      where.textContent = "";
+      clear(doc);
+      doc.append(el("div.empty", { style: { minHeight: "60vh" } }, [
+        el("div", { html: navigator.onLine ? Icons.book : Icons.wifiSlash }),
+        el("h3", { text: navigator.onLine ? "Could not open this" : "Not available offline" }),
+        el("p", { text: navigator.onLine
+          ? "The connection may have dropped. Try again in a moment."
+          : "This one has not been downloaded. Settings → Offline fetches everything, the next time you are connected." }),
+      ]));
+      return;
+    }
+    record = loaded;
 
     where.textContent = record.title;
     immTitle.textContent = record.title;

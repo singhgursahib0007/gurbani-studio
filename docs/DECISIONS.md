@@ -203,3 +203,35 @@ the pull-tab inherited their layout and lost its icon. It is `sideToggle` and
 silently passes ES modules with errors in them; parsing with
 `--input-type=module` catches it.
 
+## Offline
+
+**Every deploy would have deleted the offline copy.** The service worker's
+activate step deleted every cache except the current build's. Harmless while
+caches only held the shell; fatal once a user could download 113 MB on
+purpose, because the next CSS change would have thrown it away. The offline
+copy now lives in a cache named for the corpus, and activate deletes only this
+app's own old shell caches.
+
+**Two apps on one origin deleted each other's caches.** On GitHub Pages the
+phone app and this one share `singhgursahib0007.github.io`, and an origin has
+one Cache API. Both service workers deleted "everything that is not mine", so
+each app's update wiped the other's caches. Each now matches only its own
+names — and the phone app's had to be a pattern, `gurbani-<YYYYmmdd-HHMMSS>`,
+because a plain `gurbani-` prefix would also have matched `gurbani-studio-…`.
+
+**`replaceChildren`, like `append`, renders `false`.** The offline panel built
+its children as `cond && el(...)`, and a literal "false" appeared above the
+Download button. The same trap the phone app hit with `append` early on; the
+fix is the same filter.
+
+**The corpus version had to ignore the build.** A version stamped per build
+would ask everyone to re-download 100 MB on every deploy. It is a hash of the
+packs' own hashes, and two separate builds of the same corpus were checked to
+produce the same one.
+
+**`caches.open()` creates what it opens.** Checking how much of the offline
+copy was already stored opened its cache by name — which creates the cache if
+it is missing. So merely opening Settings left an empty cache behind for
+people who had never downloaded anything, and Remove was undone by the status
+check that followed it. Progress is now read only from a cache that
+`caches.has()` says exists.

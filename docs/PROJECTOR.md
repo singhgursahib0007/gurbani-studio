@@ -149,6 +149,10 @@ slide still fits: on a projector nothing may fall off the bottom, so a
 larger translation has to be paid for somewhere, and the fit pays for it
 automatically.
 
+Look also carries the **Offline** control — the same one as in Settings —
+because the hall is where a missing connection is found out. See
+[OFFLINE](OFFLINE.md).
+
 The weight applies to the projected line, not to the panel's own lists and not
 to the reader behind — the control means "the Gurbani on the screen".
 

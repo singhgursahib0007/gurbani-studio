@@ -101,6 +101,14 @@ sends; `B` rests the screen on ਵਾਹਿਗੁਰੂ.
 Entered from the gold button at the top of the sidebar, `P`, the reader bar,
 or the command palette.
 
+## Offline
+
+Settings opens with an **Offline** section, first because it is the one thing
+there worth doing before you need it. The sidebar's corner carries a small
+status: the percentage while downloading, a cloud with a tick once ready, and
+**Offline** — gold if covered, red if not — when the connection goes. The full
+story is in [OFFLINE](OFFLINE.md).
+
 ## Collapsing panes
 
 Both left panes collapse independently — `⌘B` for the sidebar, `⌘L` for the

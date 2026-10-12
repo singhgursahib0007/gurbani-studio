@@ -31,6 +31,7 @@ import { loadRecord, nameLine } from "../record.js";
 import { toLarivaar, search as runSearch, loadIndex, indexReady, getMeta } from "../data.js";
 import { baniName } from "../banis-info.js";
 import { KB_ROWS, A2U, LETTER_NAMES, toGurmukhi, toAscii } from "../gurmukhi.js";
+import { offlinePanel } from "./offline-panel.js";
 
 const MIN_LETTERS = 2;
 const TABS = [
@@ -77,11 +78,20 @@ export function projectorView({ onExit } = {}) {
   const body = el("div.pj-body");
   const grip = el("div.pj-grip", { role: "separator", "aria-label": "Resize panel" });
 
+  const noticeEl = el("div.pj-notice", { role: "status", hidden: true });
   const side = el("aside.pj-side", { "aria-label": "Projector controls" }, [
     grip,
     el("div.pj-side-head", {}, [tabStrip]),
+    noticeEl,
     body,
   ]);
+  let noticeTimer = null;
+  function notice(text) {
+    noticeEl.textContent = text;
+    noticeEl.hidden = false;
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(() => { noticeEl.hidden = true; }, 6000);
+  }
 
   /* One control for the panel, in one place.
    *
@@ -154,10 +164,21 @@ export function projectorView({ onExit } = {}) {
   /* ====================================================================== */
 
   async function open(target) {
-    what = { type: target.type, id: target.id };
-    slideGur.textContent = "…";
-    slideTl.textContent = slideEn.textContent = slidePa.textContent = "";
-    record = await loadRecord(what);
+    const next = { type: target.type, id: target.id };
+    let loaded;
+    try {
+      loaded = await loadRecord(next);
+    } catch {
+      // Keep what is on the screen. The hall sees the stage, so the failure
+      // is told to the operator in the panel, not projected over the Gurbani.
+      notice(navigator.onLine
+        ? "Could not open that — the connection may have dropped."
+        : "Not available offline. Download everything from Look → Offline next time you are connected.");
+      if (!record) drawIdle();
+      return;
+    }
+    what = next;
+    record = loaded;
 
     store.pushHistory({
       type: what.type, id: what.id, title: record.title,
@@ -478,7 +499,18 @@ export function projectorView({ onExit } = {}) {
       clear(qResults);
       const fill = el("div.pj-progress-fill");
       qResults.append(el("div.pj-progress", {}, [fill]));
-      await loadIndex((f) => { fill.style.width = `${Math.round(f * 100)}%`; });
+      try {
+        await loadIndex((f) => { fill.style.width = `${Math.round(f * 100)}%`; });
+      } catch {
+        if (mine !== qToken) return;
+        qMeta.textContent = "";
+        clear(qResults);
+        qResults.append(el("div.pj-empty", {
+          text: "Search needs its index, which is not on this device yet. " +
+                "Download everything from Look → Offline next time you are connected.",
+        }));
+        return;
+      }
       if (mine !== qToken) return;
     }
 
@@ -701,6 +733,10 @@ export function projectorView({ onExit } = {}) {
       toggle("Larivaar", "projLarivaar"),
       toggle("Caption at the foot", "projCaption"),
     );
+
+    // The hall is where offline matters most, so the control lives here too,
+    // not only in Settings behind the projector.
+    pane.append(el("div.pj-group-title", { text: "Offline" }), offlinePanel());
 
     pane.append(el("div.pj-group-title", { text: "Keys" }));
     [

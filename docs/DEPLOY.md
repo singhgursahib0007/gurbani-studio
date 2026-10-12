@@ -33,7 +33,7 @@ python3 -m harness static
 vercel deploy site --prod --archive=tgz
 ```
 
-**`--archive=tgz` is not optional.** The build is 13,392 files, and the free
+**`--archive=tgz` is not optional.** The build is about 13,400 files, and the free
 tier stops at 5,000 individual file uploads per 24 hours — the first attempt
 died a third of the way through with `api-upload-free`. The flag sends one
 tarball instead of thirteen thousand PUTs, which is both allowed and far
@@ -78,7 +78,13 @@ python3 -m harness static --translations en.bdb,pu.ss,pu.ft --translits en,ur
 first with the cached shell as fallback; `lines.tsv` cache first, since it is
 megabytes and only changes when the corpus is rebuilt; everything else
 stale-while-revalidate. `__BUILD__` is stamped at publish time so each
-deployment lands in a fresh cache.
+deployment lands in a fresh shell cache.
+
+The downloaded offline copy is a separate cache, named for the corpus rather
+than the build, and survives deploys. The build publishes it as 44 packs plus
+`data/offline.json`, which is why the site is now ~220 MB rather than 124:
+the corpus is there twice, once as files to read online and once as packs to
+download. Everything about it is in **[OFFLINE](OFFLINE.md)**.
 
 Precache entries are fetched with `cache: "reload"`, so a stale copy in a CDN
 edge cannot be baked in for the life of a build.

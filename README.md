@@ -53,6 +53,11 @@ rests the screen on **ਵਾਹਿਗੁਰੂ**. See **[PROJECTOR](docs/PROJECT
 
 <img alt="Projector mode: the Mool Mantar filling the screen, with a glass panel on the right listing every line of Japji Sahib" src="docs/assets/projector-lines.png">
 
+**Works with no connection.** Settings → Offline downloads every shabad, bani
+and the search index — about 25 MB, 113 MB on the device — resumable, checked
+against checksums, and kept across updates. Search, reading and projector mode
+then work with the network gone. See **[OFFLINE](docs/OFFLINE.md)**.
+
 **A reading column, not a wall of text.** A full-width line of Gurbani on a
 27-inch screen is unreadable, so the column holds a measured width and centres
 in the pane. Widening the window gives margins.
@@ -69,7 +74,7 @@ which leaves the middle pane free to be nothing but a list.
 
 ## Documentation
 
-Eight documents, cross-linked. There is an
+Nine documents, cross-linked. There is an
 **[index](docs/README.md)** that says which to read for what.
 
 | | |
@@ -77,6 +82,7 @@ Eight documents, cross-linked. There is an
 | **[Architecture](docs/ARCHITECTURE.md)** | how the pieces fit, and why the seams are where they are |
 | **[The desktop interface](docs/DESKTOP.md)** | three panes, the keyboard, and what differs from the phone |
 | **[Projector mode](docs/PROJECTOR.md)** | presenting to a hall: one line, a glass panel, a clicker |
+| **[Offline](docs/OFFLINE.md)** | downloading everything, and how it stays correct |
 | **[The corpus](docs/DATASET.md)** | every table and field, and where the texts come from |
 | **[The harness](docs/HARNESS.md)** | the ingestion pipeline, and how to extend it |
 | **[The script layer](docs/GURMUKHI.md)** | first-letter search, two encodings, and the fonts |

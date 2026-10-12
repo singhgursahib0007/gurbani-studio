@@ -1,6 +1,6 @@
 # Documentation
 
-Eight documents. Each covers one thing, and they link to each other where the
+Nine documents. Each covers one thing, and they link to each other where the
 subjects meet.
 
 ## Start here
@@ -15,6 +15,7 @@ Read this first; the rest assume it.
 |---|---|
 | Understand the interface, or change it | **[DESKTOP](DESKTOP.md)** |
 | Present to a hall, or change how that works | **[PROJECTOR](PROJECTOR.md)** |
+| Make it work with no connection | **[OFFLINE](OFFLINE.md)** |
 | Query the corpus, or add a field | **[DATASET](DATASET.md)** |
 | Change how data is fetched or built | **[HARNESS](HARNESS.md)** |
 | Touch anything to do with search or Gurmukhi | **[GURMUKHI](GURMUKHI.md)** |
@@ -41,6 +42,10 @@ what is deliberately different from the phone app.
 slides away. Why the type is fitted per shabad rather than per line, why the
 colours are not the app's themes, and why leaving full screen does not leave
 the mode.
+
+**[OFFLINE](OFFLINE.md)** — downloading the whole corpus on purpose: packs,
+checksums, resuming, surviving deploys, and the two apps that used to delete
+each other's caches.
 
 **[DATASET](DATASET.md)** — every table and field of `gurbani.sqlite`, the
 eleven translation streams and who made them, and the upstream quirks kept on
