@@ -50,7 +50,11 @@ export const DEFAULTS = Object.freeze({
   projPreset: "black",
   projBg: "#000000",
   projInk: "#FFFFFF",
+  projFont: "Sant Lipi",     // the Gurmukhi face on the projector
   projWeight: 400,           // 400 regular · 500 medium · 700 bold
+  projTlScale: 1,            // each stream under the line, relative to the
+  projEnScale: 1,            // size the Gurbani was fitted at
+  projPaScale: 1,
   projScale: 1,              // fraction of the stage the text may fill
   projAlign: "center",
   projTranslit: true,
